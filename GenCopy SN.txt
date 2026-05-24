@@ -1,0 +1,33 @@
+"Je veux que tu refasses complètement l'interface et la logique de l'application pour qu'elle corresponde exactement à mes nouveaux besoins. Voici les instructions :
+
+    Design UI (Matching Image) :
+
+        Fond de page gris clair, carte centrale blanche avec coins arrondis.
+
+        Titre de la carte : 'Générer une copie de vente'.
+
+        Bouton 'Générer' en violet vibrant (#6D28D9).
+
+        Les champs doivent être en français avec les placeholders de l'image (ex: 'Ex: Promo Ramadan – Huile de coco').
+
+    Champs du Formulaire :
+
+        Titre* (Input)
+
+        Brief produit* (Textarea - 2000 caractères max)
+
+        Plateformes* (Multi-sélection ou Checkboxes : IG, Snapchat, WhatsApp, TikTok)
+
+        Ton* (Dropdown : Professionnel, Amical, Enthousiaste, Luxueux)
+
+        Langue* (Dropdown : Français, Wolof, Anglais, puular, Serere)
+
+    Intelligence & Prompt (Système) :
+
+        Mets à jour la logique du backend (même si c'est encore le Mock API). Le système doit agir comme un Expert en copywriting e-commerce mode au Sénégal pour la plateforme Sagnsé.
+
+        Instructions de rédaction à intégrer : Format adapté au réseau, émojis, hashtags, style dakarois (élégance, classe, raffinement).
+
+    Paiement (Simulé) : Ajoute une petite section discrète pour choisir entre Wave ou Orange Money avant de pouvoir cliquer sur Générer.
+
+Modifie app/page.tsx et app/api/generate/route.ts en utilisant tes outils d'édition de fichiers. Une fois fini, relance le serveur pour que je puisse tester."

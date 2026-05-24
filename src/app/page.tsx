@@ -2,31 +2,59 @@
 
 import { useState } from "react";
 
+const PLATFORMS = [
+  { value: "instagram",  label: "Instagram (IG)" },
+  { value: "snapchat",   label: "Snapchat" },
+  { value: "whatsapp",   label: "WhatsApp" },
+  { value: "tiktok",     label: "TikTok" },
+];
+
+const TONES = [
+  { value: "professionnel", label: "Professionnel" },
+  { value: "amical",        label: "Amical" },
+  { value: "enthousiaste",  label: "Enthousiaste" },
+  { value: "luxueux",       label: "Luxueux" },
+];
+
 const LANGUAGES = [
-  { value: "english", label: "English" },
-  { value: "french",  label: "French" },
-  { value: "wolof",   label: "Wolof" },
+  { value: "francais", label: "Français" },
+  { value: "wolof",    label: "Wolof" },
+  { value: "anglais",  label: "Anglais" },
+  { value: "puular",   label: "Puular" },
+  { value: "serere",   label: "Sérère" },
 ];
 
 const PAYMENT_METHODS = [
-  { value: "wave",         label: "Wave",         color: "text-blue-600"  },
-  { value: "orange_money", label: "Orange Money", color: "text-orange-500" },
+  { value: "wave",         label: "Wave" },
+  { value: "orange_money", label: "Orange Money" },
 ];
 
 export default function Home() {
-  const [productTitle, setProductTitle]     = useState("");
-  const [productBrief, setProductBrief]     = useState("");
-  const [language, setLanguage]             = useState("english");
+  const [titre, setTitre]                   = useState("");
+  const [brief, setBrief]                   = useState("");
+  const [plateformes, setPlateformes]       = useState<string[]>([]);
+  const [ton, setTon]                       = useState("professionnel");
+  const [langue, setLangue]                 = useState("francais");
   const [paymentMethod, setPaymentMethod]   = useState("");
   const [generatedCopy, setGeneratedCopy]   = useState("");
   const [loading, setLoading]               = useState(false);
   const [error, setError]                   = useState("");
   const [copied, setCopied]                 = useState(false);
 
+  function togglePlatform(val: string) {
+    setPlateformes((prev) =>
+      prev.includes(val) ? prev.filter((p) => p !== val) : [...prev, val]
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (plateformes.length === 0) {
+      setError("Veuillez sélectionner au moins une plateforme.");
+      return;
+    }
     if (!paymentMethod) {
-      setError("Please select a payment method before generating.");
+      setError("Veuillez choisir un moyen de paiement pour continuer.");
       return;
     }
     setError("");
@@ -37,18 +65,18 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productTitle, productBrief, language, paymentMethod }),
+        body: JSON.stringify({ titre, brief, plateformes, ton, langue, paymentMethod }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
       } else {
         setGeneratedCopy(data.copy);
       }
     } catch {
-      setError("Network error. Please check your connection and try again.");
+      setError("Erreur réseau. Vérifiez votre connexion et réessayez.");
     } finally {
       setLoading(false);
     }
@@ -61,92 +89,134 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-start justify-center px-4 py-16">
-      <div className="w-full max-w-2xl space-y-8">
+    <main className="min-h-screen bg-gray-100 flex items-start justify-center px-4 py-12">
+      <div className="w-full max-w-2xl space-y-6">
 
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
-            Sales Copy Generator
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+            Générer une copie de vente
           </h1>
-          <p className="text-slate-500 text-base">
-            Turn your product idea into high-converting copy in seconds.
-          </p>
-        </div>
 
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Product Title */}
+            {/* Titre */}
             <div className="space-y-1.5">
-              <label htmlFor="productTitle" className="block text-sm font-semibold text-slate-700">
-                Product Title
+              <label htmlFor="titre" className="block text-sm font-semibold text-gray-700">
+                Titre <span className="text-violet-600">*</span>
               </label>
               <input
-                id="productTitle"
+                id="titre"
                 type="text"
-                placeholder="e.g. ProFlow Standing Desk"
-                value={productTitle}
-                onChange={(e) => setProductTitle(e.target.value)}
+                placeholder="Ex: Promo Ramadan – Huile de coco"
+                value={titre}
+                onChange={(e) => setTitre(e.target.value)}
                 maxLength={200}
                 required
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
               />
             </div>
 
-            {/* Product Brief */}
+            {/* Brief produit */}
             <div className="space-y-1.5">
-              <label htmlFor="productBrief" className="block text-sm font-semibold text-slate-700">
-                Product Brief
+              <label htmlFor="brief" className="block text-sm font-semibold text-gray-700">
+                Brief produit <span className="text-violet-600">*</span>
               </label>
               <textarea
-                id="productBrief"
+                id="brief"
                 rows={5}
-                placeholder="Describe your product — key features, target audience, main benefits, and what makes it unique."
-                value={productBrief}
-                onChange={(e) => setProductBrief(e.target.value)}
+                placeholder="Ex: Crème hydratante naturelle à base de karité du Sénégal. Convient aux peaux sèches, mixtes et sensibles. Sans paraben. Pot de 200ml."
+                value={brief}
+                onChange={(e) => setBrief(e.target.value)}
                 maxLength={2000}
                 required
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none"
+                className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition resize-none"
               />
-              <p className="text-xs text-slate-400 text-right">{productBrief.length}/2000</p>
+              <p className="text-xs text-gray-400 text-right">{brief.length}/2000</p>
             </div>
 
-            {/* Output Language */}
-            <div className="space-y-1.5">
-              <label htmlFor="language" className="block text-sm font-semibold text-slate-700">
-                Output Language
-              </label>
-              <select
-                id="language"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none"
-              >
-                {LANGUAGES.map((l) => (
-                  <option key={l.value} value={l.value}>{l.label}</option>
-                ))}
-              </select>
+            {/* Plateformes */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-gray-700">
+                Plateformes <span className="text-violet-600">*</span>
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {PLATFORMS.map((p) => {
+                  const checked = plateformes.includes(p.value);
+                  return (
+                    <label
+                      key={p.value}
+                      className={`flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer transition-all text-sm ${
+                        checked
+                          ? "border-violet-500 bg-violet-50 ring-1 ring-violet-500 text-violet-700 font-semibold"
+                          : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => togglePlatform(p.value)}
+                        className="accent-violet-600"
+                      />
+                      {p.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Ton + Langue (2 cols) */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label htmlFor="ton" className="block text-sm font-semibold text-gray-700">
+                  Ton <span className="text-violet-600">*</span>
+                </label>
+                <select
+                  id="ton"
+                  value={ton}
+                  onChange={(e) => setTon(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition appearance-none"
+                >
+                  {TONES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="langue" className="block text-sm font-semibold text-gray-700">
+                  Langue <span className="text-violet-600">*</span>
+                </label>
+                <select
+                  id="langue"
+                  value={langue}
+                  onChange={(e) => setLangue(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition appearance-none"
+                >
+                  {LANGUAGES.map((l) => (
+                    <option key={l.value} value={l.value}>{l.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Divider */}
-            <div className="border-t border-slate-100" />
+            <div className="border-t border-gray-100 pt-1" />
 
-            {/* Payment Method */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-slate-700">Payment Method</p>
-              <p className="text-xs text-slate-400 -mt-1">Select a method to unlock generation.</p>
+            {/* Paiement */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-gray-700">Moyen de paiement</p>
+              <p className="text-xs text-gray-400">Sélectionnez un moyen de paiement pour débloquer la génération.</p>
               <div className="grid grid-cols-2 gap-3">
                 {PAYMENT_METHODS.map((pm) => {
                   const selected = paymentMethod === pm.value;
                   return (
                     <label
                       key={pm.value}
-                      className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all text-sm ${
                         selected
-                          ? "border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500"
-                          : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                          ? "border-violet-500 bg-violet-50 ring-1 ring-violet-500 text-violet-700 font-semibold"
+                          : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
                       }`}
                     >
                       <input
@@ -155,11 +225,9 @@ export default function Home() {
                         value={pm.value}
                         checked={selected}
                         onChange={() => setPaymentMethod(pm.value)}
-                        className="accent-indigo-600"
+                        className="accent-violet-600"
                       />
-                      <span className={`text-sm font-semibold ${selected ? "text-indigo-700" : pm.color}`}>
-                        {pm.label}
-                      </span>
+                      {pm.label}
                     </label>
                   );
                 })}
@@ -177,7 +245,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-6 text-sm transition-colors duration-150 flex items-center justify-center gap-2"
+              className="w-full rounded-xl bg-violet-700 hover:bg-violet-800 disabled:bg-violet-400 text-white font-semibold py-3 px-6 text-sm transition-colors duration-150 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -185,10 +253,10 @@ export default function Home() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Generating…
+                  Génération en cours…
                 </>
               ) : (
-                "Generate Sales Copy"
+                "Générer"
               )}
             </button>
           </form>
@@ -196,21 +264,21 @@ export default function Home() {
 
         {/* Output Card */}
         {generatedCopy && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
-                Generated Copy
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Copie générée
               </h2>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors duration-150"
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150"
               >
                 {copied ? (
                   <>
                     <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="text-green-600">Copied!</span>
+                    <span className="text-green-600">Copié !</span>
                   </>
                 ) : (
                   <>
@@ -218,12 +286,12 @@ export default function Home() {
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                     </svg>
-                    Copy to Clipboard
+                    Copier
                   </>
                 )}
               </button>
             </div>
-            <p className="text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">
               {generatedCopy}
             </p>
           </div>
