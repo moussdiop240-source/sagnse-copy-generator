@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-const STORAGE_KEY = "sagnse_gen_count";
-
 type Status = "verifying" | "ready" | "error";
 
 interface VerifyResponse {
@@ -49,7 +47,6 @@ function SuccessContent() {
       } else {
         setCopy(data.copy);
         setStatus("ready");
-        try { localStorage.setItem(STORAGE_KEY, "0"); } catch { /* SSR safe */ }
       }
     } catch {
       setStatus("error");

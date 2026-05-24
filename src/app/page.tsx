@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const FREE_LIMIT  = 7;
+const FREE_LIMIT  = 5;
 const STORAGE_KEY = "sagnse_gen_count";
 
 const PLATFORMS = [
