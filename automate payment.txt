@@ -1,0 +1,11 @@
+I want to fully automate the payment and generation flow directly inside our Next.js app without using Make.com. Please modify our files (src/app/page.tsx, src/app/api/generate/route.ts) and create a new webhook route (src/app/api/webhook/route.ts) with this architecture:
+
+    Direct PayDunya/InTouch Link: When a user hits the 5-try freemium limit, clicking 'Générer' should call our local backend to create a PayDunya/InTouch payment session, then redirect the user to the secure Wave/Orange Money payment page.
+
+    Direct Webhook Handler (/api/webhook): Create a secure POST route that PayDunya/InTouch will call automatically the millisecond the payment succeeds.
+
+    Inline OpenAI Call: Inside that webhook route, as soon as the payment is verified, call the OpenAI API (gpt-4o-mini) right there using our expert Sagnsé copywriting prompt.
+
+    Instant Delivery & WhatsApp Button: Save the generated copy to a temporary state or database (or pass it to a success page) so the merchant sees their result immediately. Include the green 'Partager sur WhatsApp' button to let them copy/send the text in one click.
+
+    Keep all environment variables clean in .env.local. Let me know when the backend restructures are ready."

@@ -1,0 +1,10 @@
+"Je veux ajouter une logique Freemium à notre application. L'objectif est de limiter l'utilisation gratuite pour inciter les utilisateurs à utiliser nos moyens de paiement. Applique ces modifications dans src/app/page.tsx et src/app/api/generate/route.ts :
+
+
+Compteur Local (Essai Gratuit) : Utilise le localStorage du navigateur pour suivre le nombre de générations effectuées. Accorde 7 générations gratuites au total.
+
+Blocage de l'Interface : Dès que la limite de 7 générations est atteinte, masque ou désactive le bouton violet 'Générer'. À la place, affiche un message clair et engageant en français : 'Vous avez atteint votre limite de 7 copies gratuites. Pour débloquer des générations illimitées, effectuez un paiement via Wave ou Orange Money.'
+
+Simuler le Déblocage par Paiement : Lorsque l'utilisateur sélectionne Wave ou Orange Money et clique sur un bouton de simulation de paiement (ou si le choix d'un mode de paiement réactive le bouton), réinitialise le compteur à zéro pour simuler un accès réussi.
+
+Veille à ce que le design reste propre, s'intègre parfaitement avec notre mise en page actuelle et nos styles Tailwind, puis relance le serveur pour que je puisse tester."
