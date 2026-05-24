@@ -2,16 +2,33 @@
 
 import { useState } from "react";
 
+const LANGUAGES = [
+  { value: "english", label: "English" },
+  { value: "french",  label: "French" },
+  { value: "wolof",   label: "Wolof" },
+];
+
+const PAYMENT_METHODS = [
+  { value: "wave",         label: "Wave",         color: "text-blue-600"  },
+  { value: "orange_money", label: "Orange Money", color: "text-orange-500" },
+];
+
 export default function Home() {
-  const [productTitle, setProductTitle] = useState("");
-  const [productBrief, setProductBrief] = useState("");
-  const [generatedCopy, setGeneratedCopy] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [productTitle, setProductTitle]     = useState("");
+  const [productBrief, setProductBrief]     = useState("");
+  const [language, setLanguage]             = useState("english");
+  const [paymentMethod, setPaymentMethod]   = useState("");
+  const [generatedCopy, setGeneratedCopy]   = useState("");
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState("");
+  const [copied, setCopied]                 = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!paymentMethod) {
+      setError("Please select a payment method before generating.");
+      return;
+    }
     setError("");
     setGeneratedCopy("");
     setLoading(true);
@@ -20,7 +37,7 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productTitle, productBrief }),
+        body: JSON.stringify({ productTitle, productBrief, language, paymentMethod }),
       });
 
       const data = await res.json();
@@ -61,11 +78,9 @@ export default function Home() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
 
+            {/* Product Title */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="productTitle"
-                className="block text-sm font-semibold text-slate-700"
-              >
+              <label htmlFor="productTitle" className="block text-sm font-semibold text-slate-700">
                 Product Title
               </label>
               <input
@@ -80,11 +95,9 @@ export default function Home() {
               />
             </div>
 
+            {/* Product Brief */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="productBrief"
-                className="block text-sm font-semibold text-slate-700"
-              >
+              <label htmlFor="productBrief" className="block text-sm font-semibold text-slate-700">
                 Product Brief
               </label>
               <textarea
@@ -97,17 +110,70 @@ export default function Home() {
                 required
                 className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none"
               />
-              <p className="text-xs text-slate-400 text-right">
-                {productBrief.length}/2000
-              </p>
+              <p className="text-xs text-slate-400 text-right">{productBrief.length}/2000</p>
             </div>
 
+            {/* Output Language */}
+            <div className="space-y-1.5">
+              <label htmlFor="language" className="block text-sm font-semibold text-slate-700">
+                Output Language
+              </label>
+              <select
+                id="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none"
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l.value} value={l.value}>{l.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-slate-100" />
+
+            {/* Payment Method */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-slate-700">Payment Method</p>
+              <p className="text-xs text-slate-400 -mt-1">Select a method to unlock generation.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {PAYMENT_METHODS.map((pm) => {
+                  const selected = paymentMethod === pm.value;
+                  return (
+                    <label
+                      key={pm.value}
+                      className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all ${
+                        selected
+                          ? "border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500"
+                          : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={pm.value}
+                        checked={selected}
+                        onChange={() => setPaymentMethod(pm.value)}
+                        className="accent-indigo-600"
+                      />
+                      <span className={`text-sm font-semibold ${selected ? "text-indigo-700" : pm.color}`}>
+                        {pm.label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Error */}
             {error && (
               <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
                 {error}
               </div>
             )}
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -115,25 +181,9 @@ export default function Home() {
             >
               {loading ? (
                 <>
-                  <svg
-                    className="animate-spin h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Generating…
                 </>
@@ -157,30 +207,14 @@ export default function Home() {
               >
                 {copied ? (
                   <>
-                    <svg
-                      className="h-3.5 w-3.5 text-green-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
+                    <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-green-600">Copied!</span>
                   </>
                 ) : (
                   <>
-                    <svg
-                      className="h-3.5 w-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                     </svg>
