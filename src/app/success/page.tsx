@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 type Status = "verifying" | "ready" | "error";
 
@@ -117,12 +118,12 @@ function SuccessContent() {
               ) : "Réessayer"}
             </button>
           )}
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-5 py-2.5 transition-colors duration-150"
           >
-            ← Retour à l'accueil
-          </a>
+            ← Retour à l&apos;accueil
+          </Link>
         </div>
       </div>
     );
@@ -174,12 +175,12 @@ function SuccessContent() {
         Partager sur WhatsApp
       </a>
 
-      <a
+      <Link
         href="/"
         className="block text-center text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 pt-1"
       >
         ← Générer une autre copie
-      </a>
+      </Link>
     </div>
   );
 }

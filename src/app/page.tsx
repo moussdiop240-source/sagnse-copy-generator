@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const FREE_LIMIT  = 5;
 const STORAGE_KEY = "sagnse_gen_count";
@@ -45,13 +45,12 @@ export default function Home() {
   const [error, setError]                 = useState("");
   const [copied, setCopied]               = useState(false);
 
-  // Freemium counter — read from localStorage after mount
-  const [genCount, setGenCount] = useState(0);
-
-  useEffect(() => {
+  // Lazy initializer reads localStorage once on mount — avoids effect cascade
+  const [genCount, setGenCount] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
     const stored = parseInt(localStorage.getItem(STORAGE_KEY) ?? "0", 10);
-    setGenCount(isNaN(stored) ? 0 : stored);
-  }, []);
+    return isNaN(stored) ? 0 : stored;
+  });
 
   const limitReached = genCount >= FREE_LIMIT;
   const remaining    = Math.max(0, FREE_LIMIT - genCount);
