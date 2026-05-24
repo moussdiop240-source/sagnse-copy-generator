@@ -5,6 +5,7 @@ export interface PendingRequest {
   ton: string;
   langue: string;
   paymentMethod: string;
+  paydunyaToken: string;  // PayDunya invoice token; empty string in dev mode
   createdAt: number;
 }
 
