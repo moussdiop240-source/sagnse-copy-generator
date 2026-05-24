@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sales Copy Generator",
-  description: "Turn your product idea into high-converting sales copy in seconds.",
+  title: "Sagnsé — Générateur de Copie de Vente",
+  description: "Générez des copies de vente percutantes pour Instagram, TikTok, WhatsApp et Snapchat en français, wolof, anglais, pulaar et sérère.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

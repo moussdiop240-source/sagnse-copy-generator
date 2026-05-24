@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const VALID_PLATFORMS   = new Set(["instagram", "snapchat", "whatsapp", "tiktok"]);
+const VALID_TONES       = new Set(["professionnel", "amical", "enthousiaste", "luxueux"]);
+const VALID_LANGUAGES   = new Set(["francais", "wolof", "anglais", "puular", "serere"]);
+const VALID_PAYMENTS    = new Set(["wave", "orange_money"]);
 
 const PLATFORM_LABELS: Record<string, string> = {
   instagram: "Instagram",
@@ -17,10 +20,10 @@ const PAYMENT_LABELS: Record<string, string> = {
 
 function platformHashtags(plateformes: string[]): string {
   const tags: string[] = [];
-  if (plateformes.includes("instagram"))  tags.push("#Sagnsé", "#ModedakarSN", "#ShopeLocal");
-  if (plateformes.includes("tiktok"))     tags.push("#TikTokSN", "#DakarTrend", "#FYP");
-  if (plateformes.includes("snapchat"))   tags.push("#SnapSN");
-  if (plateformes.includes("whatsapp"))   tags.push();
+  if (plateformes.includes("instagram")) tags.push("#Sagnsé", "#ModedakarSN", "#ShopeLocal");
+  if (plateformes.includes("tiktok"))    tags.push("#TikTokSN", "#DakarTrend", "#FYP");
+  if (plateformes.includes("snapchat"))  tags.push("#SnapSN");
+  // WhatsApp has no hashtag convention — intentionally omitted
   return tags.length ? "\n" + tags.join(" ") : "";
 }
 
@@ -32,7 +35,7 @@ function mockCopy(
   langue: string,
   paymentMethod: string
 ): string {
-  const payment  = PAYMENT_LABELS[paymentMethod] ?? paymentMethod;
+  const payment  = PAYMENT_LABELS[paymentMethod];
   const hashtags = platformHashtags(plateformes);
   const isIG     = plateformes.includes("instagram");
   const isTikTok = plateformes.includes("tiktok");
@@ -44,7 +47,7 @@ function mockCopy(
     enthousiaste:  "🔥",
     luxueux:       "👑",
   };
-  const em = toneEmoji[ton] ?? "✨";
+  const em = toneEmoji[ton];
 
   if (langue === "wolof") {
     return `${em} *${titre}* ${em}
@@ -68,7 +71,7 @@ ${brief}
 ${isTikTok ? "⚡ Jogii hannde — janngo waawaa!" : isIG ? "📸 Fello ngalu — style Dakar!" : "💎 Sagnsé — ngenndaagu maa!"}
 
 ✅ Heɓirde wellaandi
-✅ Livaraison Dakar
+✅ Livraison Dakar
 ✅ Jom ${payment} — yaawnude e laabi!
 
 Neldaa haala maa to comment walla DM! 👇${hashtags}`;
@@ -85,7 +88,7 @@ ${isTikTok ? "⚡ A jox ak handë — jangaat o ndaw!" : isIG ? "📸 Style Daka
 ✅ Livraison Dakar
 ✅ Faj ci ${payment} — gaaw te yomb!
 
-A bind soxna ci comment wall DM! 👇${hashtags}`;
+A bind soxna ci comment walla DM! 👇${hashtags}`;
   }
 
   if (langue === "anglais") {
@@ -95,7 +98,7 @@ A bind soxna ci comment wall DM! 👇${hashtags}`;
       enthousiaste:  `🔥 OH WOW — *${titre}* just dropped and it's EVERYTHING!!`,
       luxueux:       `👑 Luxury redefined. *${titre}* — for those who know their worth.`,
     };
-    return `${tonePhrases[ton] ?? tonePhrases["professionnel"]}
+    return `${tonePhrases[ton]}
 
 ${brief}
 
@@ -116,7 +119,7 @@ DM us or drop a comment below! 👇${hashtags}`;
     luxueux:       `👑 Le luxe à votre portée. *${titre}* — parce que vous le méritez.`,
   };
 
-  return `${tonePhrases[ton] ?? tonePhrases["professionnel"]}
+  return `${tonePhrases[ton]}
 
 ${brief}
 
@@ -130,15 +133,34 @@ Commande maintenant ou écris-nous en DM ! 👇${hashtags}`;
 }
 
 export async function POST(req: NextRequest) {
+  // Guard: malformed request body
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Corps de requête invalide." },
+      { status: 400 }
+    );
+  }
+
   const {
     titre,
     brief,
-    plateformes = [],
-    ton = "professionnel",
-    langue = "francais",
+    plateformes,
+    ton        = "professionnel",
+    langue     = "francais",
     paymentMethod,
-  } = await req.json();
+  } = body as {
+    titre?: string;
+    brief?: string;
+    plateformes?: unknown;
+    ton?: string;
+    langue?: string;
+    paymentMethod?: string;
+  };
 
+  // Validate required text fields
   if (!titre?.trim() || !brief?.trim()) {
     return NextResponse.json(
       { error: "Le titre et le brief produit sont requis." },
@@ -151,29 +173,46 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (!plateformes.length) {
+
+  // Validate platforms array
+  if (!Array.isArray(plateformes) || plateformes.length === 0) {
     return NextResponse.json(
       { error: "Veuillez sélectionner au moins une plateforme." },
       { status: 400 }
     );
   }
-  if (!paymentMethod) {
+  const safePlateformes = (plateformes as string[]).filter((p) => VALID_PLATFORMS.has(p));
+  if (safePlateformes.length === 0) {
     return NextResponse.json(
-      { error: "Un moyen de paiement est requis." },
+      { error: "Plateforme(s) non reconnue(s)." },
       { status: 400 }
     );
   }
 
+  // Validate enum fields
+  if (!paymentMethod || !VALID_PAYMENTS.has(paymentMethod)) {
+    return NextResponse.json(
+      { error: "Moyen de paiement invalide ou manquant." },
+      { status: 400 }
+    );
+  }
+  const safeTon    = VALID_TONES.has(ton ?? "")    ? ton!    : "professionnel";
+  const safeLangue = VALID_LANGUAGES.has(langue ?? "") ? langue! : "francais";
+
   // Use mock when no valid OpenAI key is configured
-  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.length < 20) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || apiKey.length < 20) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return NextResponse.json({
-      copy: mockCopy(titre, brief, plateformes, ton, langue, paymentMethod),
+      copy: mockCopy(titre, brief, safePlateformes, safeTon, safeLangue, paymentMethod),
     });
   }
 
-  const platformNames = plateformes.map((p: string) => PLATFORM_LABELS[p] ?? p).join(", ");
-  const payment = PAYMENT_LABELS[paymentMethod] ?? paymentMethod;
+  // Live OpenAI path — client instantiated here to avoid module-level crash
+  const client = new OpenAI({ apiKey });
+
+  const platformNames = safePlateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
+  const payment = PAYMENT_LABELS[paymentMethod];
 
   const langMap: Record<string, string> = {
     francais: "Rédige entièrement en français.",
@@ -190,33 +229,42 @@ export async function POST(req: NextRequest) {
     luxueux:       "ton luxueux, exclusif et sophistiqué",
   };
 
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: `Tu es un expert en copywriting e-commerce mode au Sénégal pour la plateforme Sagnsé.
+  try {
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `Tu es un expert en copywriting e-commerce mode au Sénégal pour la plateforme Sagnsé.
 Tu rédiges des copies de vente courtes, percutantes et adaptées aux réseaux sociaux dakarois.
 Style : élégance, classe, raffinement — le goût dakarois dans chaque mot.
 Utilise des émojis pertinents, des hashtags adaptés à la plateforme, et un style accrocheur.
-${langMap[langue] ?? langMap["francais"]}
+${langMap[safeLangue]}
 Réponds uniquement avec la copie de vente — sans introduction ni commentaire.`,
-      },
-      {
-        role: "user",
-        content: `Produit : ${titre}
+        },
+        {
+          role: "user",
+          content: `Produit : ${titre}
 Brief : ${brief}
 Plateformes : ${platformNames}
-Ton : ${tonMap[ton] ?? ton}
+Ton : ${tonMap[safeTon]}
 Moyen de paiement disponible : ${payment}
 
 Génère une copie de vente haute conversion pour ce produit.`,
-      },
-    ],
-    max_tokens: 600,
-    temperature: 0.85,
-  });
+        },
+      ],
+      max_tokens: 600,
+      temperature: 0.85,
+    });
 
-  const copy = completion.choices[0]?.message?.content ?? "";
-  return NextResponse.json({ copy });
+    const copy = completion.choices[0]?.message?.content ?? "";
+    return NextResponse.json({ copy });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erreur inconnue";
+    console.error("[/api/generate] OpenAI error:", message);
+    return NextResponse.json(
+      { error: "Erreur lors de la génération. Veuillez réessayer." },
+      { status: 502 }
+    );
+  }
 }
