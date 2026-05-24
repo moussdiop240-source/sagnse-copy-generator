@@ -141,6 +141,15 @@ export default function Home() {
     <main className="min-h-screen bg-gray-100 flex items-start justify-center px-4 py-12">
       <div className="w-full max-w-2xl space-y-6">
 
+        {/* Brand header */}
+        <div className="text-center space-y-1">
+          <div className="inline-flex items-center gap-2">
+            <span className="text-2xl font-extrabold tracking-tight text-violet-700">Sagnsé</span>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest border border-gray-300 rounded-full px-2 py-0.5">GenCopy SN</span>
+          </div>
+          <p className="text-xs text-gray-500">Copywriting expert pour les marchands sénégalais</p>
+        </div>
+
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <div className="flex items-start justify-between mb-6">

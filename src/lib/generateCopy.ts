@@ -141,7 +141,7 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
       messages: [
         {
           role: "system",
-          content: `Tu es un copywriter expert du e-commerce sénégalais, spécialisé dans la vente de mode et de beauté sur les réseaux sociaux dakarois (Sagnsé).
+          content: `Tu es un copywriter expert du e-commerce et du commerce social sénégalais, spécialisé dans la vente de mode et de beauté sur les réseaux sociaux dakarois pour la marque Sagnsé.
 Chaque copie que tu génères est UNIQUE — structure de phrase, vocabulaire et accroche différents à chaque fois.
 Tu suis IMPÉRATIVEMENT cette structure en 3 blocs :
 
