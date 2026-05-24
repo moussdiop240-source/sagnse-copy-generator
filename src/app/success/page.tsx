@@ -1,61 +1,83 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const STORAGE_KEY = "sagnse_gen_count";
+
+type Status = "verifying" | "ready" | "error";
+
+interface VerifyResponse {
+  copy?:      string;
+  error?:     string;
+  retryable?: boolean;
+}
 
 function SuccessContent() {
   const params    = useSearchParams();
   const requestId = params.get("requestId") ?? "";
 
-  const [copy,     setCopy]     = useState("");
-  const [status,   setStatus]   = useState<"verifying" | "ready" | "error">("verifying");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [copied,   setCopied]   = useState(false);
+  const [copy,      setCopy]      = useState("");
+  const [status,    setStatus]    = useState<Status>("verifying");
+  const [errorMsg,  setErrorMsg]  = useState("");
+  const [retryable, setRetryable] = useState(false);
+  const [retrying,  setRetrying]  = useState(false);
+  const [copied,    setCopied]    = useState(false);
 
-  useEffect(() => {
+  const runVerify = useCallback(async () => {
     if (!requestId) {
       setStatus("error");
       setErrorMsg("Lien de paiement invalide.");
+      setRetryable(false);
       return;
     }
 
-    let cancelled = false;
+    setStatus("verifying");
 
-    fetch("/api/payment/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId }),
-    })
-      .then((res) => res.json())
-      .then((data: { copy?: string; error?: string }) => {
-        if (cancelled) return;
-        if (data.error || !data.copy) {
-          setStatus("error");
-          setErrorMsg(data.error ?? "Une erreur est survenue.");
-        } else {
-          setCopy(data.copy);
-          setStatus("ready");
-          // Reset freemium counter — user paid, they get a fresh batch
-          try { localStorage.setItem(STORAGE_KEY, "0"); } catch { /* ignore SSR */ }
-        }
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setStatus("error");
-        setErrorMsg("Erreur réseau. Vérifiez votre connexion et réessayez.");
+    try {
+      const res  = await fetch("/api/payment/verify", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ requestId }),
       });
+      const data: VerifyResponse = await res.json();
 
-    return () => { cancelled = true; };
+      if (!res.ok || data.error || !data.copy) {
+        setStatus("error");
+        setErrorMsg(data.error ?? "Une erreur est survenue.");
+        setRetryable(data.retryable ?? false);
+      } else {
+        setCopy(data.copy);
+        setStatus("ready");
+        try { localStorage.setItem(STORAGE_KEY, "0"); } catch { /* SSR safe */ }
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("Erreur réseau. Vérifiez votre connexion et réessayez.");
+      setRetryable(true);
+    }
   }, [requestId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!cancelled) await runVerify();
+    })();
+    return () => { cancelled = true; };
+  }, [runVerify]);
+
+  async function handleRetry() {
+    setRetrying(true);
+    await runVerify();
+    setRetrying(false);
+  }
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(copy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* ignore clipboard errors */ }
+    } catch { /* ignore */ }
   }
 
   /* ── Loading ── */
@@ -74,15 +96,37 @@ function SuccessContent() {
   /* ── Error ── */
   if (status === "error") {
     return (
-      <div className="rounded-2xl bg-red-50 border border-red-200 px-6 py-6 text-center space-y-3">
+      <div className="rounded-2xl bg-red-50 border border-red-200 px-6 py-6 text-center space-y-4">
         <div className="text-2xl">❌</div>
         <p className="text-red-700 font-semibold text-sm">{errorMsg}</p>
         {requestId && (
           <p className="text-xs text-gray-400 font-mono break-all">Réf : {requestId}</p>
         )}
-        <a href="/" className="inline-block text-sm text-violet-600 hover:underline">
-          ← Retour à l'accueil
-        </a>
+        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          {retryable && (
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-700 hover:bg-violet-800 disabled:bg-violet-400 text-white text-sm font-semibold px-5 py-2.5 transition-colors duration-150"
+            >
+              {retrying ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Vérification…
+                </>
+              ) : "Réessayer"}
+            </button>
+          )}
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-5 py-2.5 transition-colors duration-150"
+          >
+            ← Retour à l'accueil
+          </a>
+        </div>
       </div>
     );
   }

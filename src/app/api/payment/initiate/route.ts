@@ -7,6 +7,12 @@ const VALID_TONES     = new Set(["professionnel", "amical", "enthousiaste", "lux
 const VALID_LANGUAGES = new Set(["francais", "wolof", "anglais", "puular", "serere"]);
 const VALID_PAYMENTS  = new Set(["wave", "orange_money"]);
 
+function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -19,16 +25,12 @@ export async function POST(req: NextRequest) {
     titre,
     brief,
     plateformes,
-    ton = "professionnel",
-    langue = "francais",
+    ton          = "professionnel",
+    langue       = "francais",
     paymentMethod,
   } = body as {
-    titre?: string;
-    brief?: string;
-    plateformes?: unknown;
-    ton?: string;
-    langue?: string;
-    paymentMethod?: string;
+    titre?: string; brief?: string; plateformes?: unknown;
+    ton?: string; langue?: string; paymentMethod?: string;
   };
 
   if (!titre?.trim() || !brief?.trim()) {
@@ -51,30 +53,30 @@ export async function POST(req: NextRequest) {
   const safeTon    = VALID_TONES.has(ton ?? "")        ? ton!    : "professionnel";
   const safeLangue = VALID_LANGUAGES.has(langue ?? "") ? langue! : "francais";
 
-  const requestId = randomUUID();
-  const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const price     = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
-  const masterKey = process.env.PAYDUNYA_MASTER_KEY ?? "";
+  const requestId  = randomUUID();
+  const appUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const price      = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
+  const masterKey  = process.env.PAYDUNYA_MASTER_KEY ?? "";
 
   const formData = {
-    titre: titre.trim(),
-    brief: brief.trim(),
-    plateformes: safePlateformes,
-    ton: safeTon,
-    langue: safeLangue,
+    titre:         titre.trim(),
+    brief:         brief.trim(),
+    plateformes:   safePlateformes,
+    ton:           safeTon,
+    langue:        safeLangue,
     paymentMethod,
-    createdAt: Date.now(),
+    createdAt:     Date.now(),
   };
 
-  // Dev mode: no PayDunya keys → skip checkout, go straight to /success for verify
+  // Dev mode: no PayDunya keys → skip checkout, go straight to /success
   if (!masterKey) {
-    storePending(requestId, { ...formData, paydunyaToken: "" });
+    await storePending(requestId, { ...formData, paydunyaToken: "" });
     return NextResponse.json({
       checkoutUrl: `${appUrl}/success?requestId=${requestId}`,
     });
   }
 
-  // Live mode: create PayDunya invoice
+  // Live mode: create PayDunya invoice (10 s hard timeout)
   const privateKey = process.env.PAYDUNYA_PRIVATE_KEY ?? "";
   const apiToken   = process.env.PAYDUNYA_TOKEN ?? "";
   const mode       = process.env.PAYDUNYA_MODE ?? "sandbox";
@@ -83,36 +85,40 @@ export async function POST(req: NextRequest) {
     : "https://app.paydunya.com/sandbox-api/v1";
 
   try {
-    const paydunyaRes = await fetch(`${baseUrl}/checkout-invoice/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "PAYDUNYA-MASTER-KEY": masterKey,
-        "PAYDUNYA-PRIVATE-KEY": privateKey,
-        "PAYDUNYA-TOKEN": apiToken,
+    const paydunyaRes = await fetchWithTimeout(
+      `${baseUrl}/checkout-invoice/create`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":       "application/json",
+          "PAYDUNYA-MASTER-KEY":  masterKey,
+          "PAYDUNYA-PRIVATE-KEY": privateKey,
+          "PAYDUNYA-TOKEN":       apiToken,
+        },
+        body: JSON.stringify({
+          invoice: {
+            total_amount: price,
+            description:  `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
+          },
+          store: {
+            name:        "Sagnsé",
+            website_url: appUrl,
+          },
+          actions: {
+            cancel_url: appUrl,
+            return_url: `${appUrl}/success?requestId=${requestId}`,
+          },
+          custom_data: { request_id: requestId },
+        }),
       },
-      body: JSON.stringify({
-        invoice: {
-          total_amount: price,
-          description: `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
-        },
-        store: {
-          name: "Sagnsé",
-          website_url: appUrl,
-        },
-        actions: {
-          cancel_url: appUrl,
-          return_url: `${appUrl}/success?requestId=${requestId}`,
-        },
-        custom_data: { request_id: requestId },
-      }),
-    });
+      10_000 // 10 s
+    );
 
     const result = await paydunyaRes.json() as {
       response_code?: string;
-      description?: string;
-      token?: string;
-      checkout_url?: string;
+      description?:   string;
+      token?:         string;
+      checkout_url?:  string;
     };
 
     if (result.response_code !== "00" || !result.checkout_url) {
@@ -122,13 +128,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Store form data alongside the PayDunya invoice token for verification later
-    storePending(requestId, { ...formData, paydunyaToken: result.token ?? "" });
-
+    await storePending(requestId, { ...formData, paydunyaToken: result.token ?? "" });
     return NextResponse.json({ checkoutUrl: result.checkout_url });
+
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Erreur inconnue";
-    console.error("[/api/payment/initiate] PayDunya error:", message);
+    if (err instanceof Error && err.name === "AbortError") {
+      return NextResponse.json(
+        { error: "Le service de paiement met trop de temps à répondre. Réessayez." },
+        { status: 504 }
+      );
+    }
+    console.error("[/api/payment/initiate] PayDunya error:", err);
     return NextResponse.json(
       { error: "Erreur lors de l'initiation du paiement. Réessayez." },
       { status: 502 }
