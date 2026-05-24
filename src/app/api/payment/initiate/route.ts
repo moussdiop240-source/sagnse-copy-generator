@@ -116,12 +116,14 @@ export async function POST(req: NextRequest) {
 
     const result = await paydunyaRes.json() as {
       response_code?: string;
+      response_text?: string;   // PayDunya returns the checkout URL here
       description?:   string;
       token?:         string;
-      checkout_url?:  string;
     };
 
-    if (result.response_code !== "00" || !result.checkout_url) {
+    const checkoutUrl = result.response_code === "00" ? result.response_text : undefined;
+
+    if (!checkoutUrl) {
       return NextResponse.json(
         { error: result.description ?? "Erreur de création de facture PayDunya." },
         { status: 502 }
@@ -129,7 +131,7 @@ export async function POST(req: NextRequest) {
     }
 
     await storePending(requestId, { ...formData, paydunyaToken: result.token ?? "" });
-    return NextResponse.json({ checkoutUrl: result.checkout_url });
+    return NextResponse.json({ checkoutUrl });
 
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
