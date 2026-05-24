@@ -50,86 +50,93 @@ function mockCopy(
   const em = toneEmoji[ton];
 
   if (langue === "wolof") {
-    return `${em} *${titre}* ${em}
+    const hooks = [
+      `${isTikTok ? "⚡" : "🔥"} Sagnssé dëgg — *${titre}* bi dafa ànd ak style bi!\nDëgër na, paré nga pour Korité ?`,
+      `${em} Dafa gawa lool ! *${titre}* — deuredj li ci Dakar!\nXam nga loolu ? Tey lañu ko jënd !`,
+    ];
+    const hook = hooks[Math.floor(Math.random() * hooks.length)];
+    return `${hook}
 
-${brief}
+✨ ${brief}
 
-${isTikTok ? "⚡ Tey dafa am, suba dafa jeex!" : isIG ? "📸 Style bi dafa neex — Dakar style ak classe!" : isWA ? "📲 Xamal sa xarit yi — dafa am promotion!" : "💎 Sagnsé — élégance bi moy sa droit!"}
+${isTikTok ? "⚡ TikTok SN dafa ko xam — scroll bul dem!" : isIG ? "📸 Feed bi dafa neex ak style Dakar klasse!" : isWA ? "📲 Sos sa xarit yi — promotion bi dafa tàmm!" : "💎 Élégance bi moy sa droit — Sagnsé!"}
 
 ✅ Yomb lañ ko jënd
 ✅ Livraison ci Dakar
 ✅ Jënd ci ${payment} — gaaw te yomb!
 
-Bindal sa yëgël ci comment walla DM! 👇${hashtags}`;
+📩 Bindal sa yëgël ci comment walla DM bu kanam! 👇${hashtags}`;
   }
 
   if (langue === "puular") {
-    return `${em} *${titre}* ${em}
+    return `${em} Mboddi! *${titre}* — ko woni style Dakar dow ndee!
+Jaraama, paré nga heɓde ko neɗɗo fof yiɗi?
 
-${brief}
+✨ ${brief}
 
-${isTikTok ? "⚡ Jogii hannde — janngo waawaa!" : isIG ? "📸 Fello ngalu — style Dakar!" : "💎 Sagnsé — ngenndaagu maa!"}
+${isTikTok ? "⚡ TikTok SN heɓii — janngo waawaa!" : isIG ? "📸 Fello ngalu — style Dakar klasse!" : "💎 Sagnsé — ngenndaagu maa!"}
 
 ✅ Heɓirde wellaandi
 ✅ Livraison Dakar
 ✅ Jom ${payment} — yaawnude e laabi!
 
-Neldaa haala maa to comment walla DM! 👇${hashtags}`;
+📩 Neldaa haala maa to comment walla DM! 👇${hashtags}`;
   }
 
   if (langue === "serere") {
-    return `${em} *${titre}* ${em}
+    return `${em} *${titre}* — a xam na, klasse bi dafa màtt!
+Paré nga pour fête bi? Tey mooy waxtu bi!
 
-${brief}
+✨ ${brief}
 
-${isTikTok ? "⚡ A jox ak handë — jangaat o ndaw!" : isIG ? "📸 Style Dakar — élégance ak raffinement!" : "💎 Sagnsé — a soxor njël!"}
+${isTikTok ? "⚡ TikTok SN a ko xam — jangaat o ndaw!" : isIG ? "📸 Style Dakar — élégance ak raffinement!" : "💎 Sagnsé — a soxor njël!"}
 
 ✅ A xam na ko dëkk
 ✅ Livraison Dakar
 ✅ Faj ci ${payment} — gaaw te yomb!
 
-A bind soxna ci comment walla DM! 👇${hashtags}`;
+📩 A bind soxna ci comment walla DM! 👇${hashtags}`;
   }
 
   if (langue === "anglais") {
-    const tonePhrases: Record<string, string> = {
-      professionnel: `Elevate your style with *${titre}* — crafted for the discerning Dakar woman.`,
-      amical:        `Hey love! Have you heard about *${titre}*? Your skin (and your wallet) will thank you! 😊`,
-      enthousiaste:  `🔥 OH WOW — *${titre}* just dropped and it's EVERYTHING!!`,
-      luxueux:       `👑 Luxury redefined. *${titre}* — for those who know their worth.`,
+    const hooks: Record<string, string> = {
+      professionnel: `Are you still sleeping on *${titre}*? Dakar's most elegant women aren't. ✨\nThis is your sign — klasse doesn't wait.`,
+      amical:        `Hey love 😊 — *${titre}* just landed and it's giving TOP TOP!\nYour next favourite piece is right here.`,
+      enthousiaste:  `🔥 NO CAP — *${titre}* is the one everyone's been asking about!!\nDakar vibes, global standards.`,
+      luxueux:       `👑 Some things are made for those who know their worth.\n*${titre}* — luxury, redefined for the Dakar woman.`,
     };
-    return `${tonePhrases[ton]}
+    return `${hooks[ton]}
 
-${brief}
+✨ ${brief}
 
-${isTikTok ? "⚡ Trending now on TikTok SN!" : isIG ? "📸 Made for your feed. Made for Dakar." : isWA ? "📲 Share with your crew — this one's too good to keep secret!" : ""}
+${isTikTok ? "⚡ Trending hard on TikTok SN — don't miss out!" : isIG ? "📸 Made for your feed. Made for Dakar." : isWA ? "📲 Share with your crew — this one's too good to keep!" : ""}
 
 ✅ Fast delivery across Dakar
 ✅ 100% authentic quality
-✅ Pay easily via ${payment}
+✅ Easy payment via ${payment}
 
-DM us or drop a comment below! 👇${hashtags}`;
+📩 DM us or drop a comment — order now! 👇${hashtags}`;
   }
 
   // Default: Français
-  const tonePhrases: Record<string, string> = {
-    professionnel: `Découvrez *${titre}* — l'excellence au service de votre style dakarois.`,
-    amical:        `Eh toi ! 😊 Tu cherches *${titre}* ? On a exactement ce qu'il te faut !`,
-    enthousiaste:  `🔥 ALERTE PROMO ! *${titre}* est enfin disponible et ça va te changer la vie !!`,
-    luxueux:       `👑 Le luxe à votre portée. *${titre}* — parce que vous le méritez.`,
+  const hooks: Record<string, string> = {
+    professionnel: `Tu cherches l'élégance qui parle avant même que tu ouvres la bouche ? ✨\n*${titre}* — le style dakarois dans toute sa splendeur.`,
+    amical:        `Eh toi ! 😊 T'as vu *${titre}* ? C'est chaud, paré — exactement ce qu'il te fallait !\nOn t'attendait.`,
+    enthousiaste:  `🔥 ALERTE KLASSE ! *${titre}* vient d'arriver et ça va tout changer !!\nDakar, vous êtes paré ?`,
+    luxueux:       `👑 Le luxe n'est plus un rêve.\n*${titre}* — pour celles qui savent ce qu'elles valent.`,
   };
 
-  return `${tonePhrases[ton]}
+  return `${hooks[ton]}
 
-${brief}
+✨ ${brief}
 
-${isTikTok ? "⚡ Le produit qui fait le buzz sur TikTok SN !" : isIG ? "📸 L'élégance dakaroise dans chaque détail — parfait pour ton feed." : isWA ? "📲 Partage avec tes amies — cette offre est trop bonne pour la garder !" : ""}
+${isTikTok ? "⚡ Le buzz sur TikTok SN — arrête ton scroll !" : isIG ? "📸 L'élégance dakaroise dans chaque détail — parfait pour ton feed." : isWA ? "📲 Partage avec tes amies — cette offre est trop bonne pour la garder !" : ""}
 
 ✅ Livraison rapide à Dakar
 ✅ Qualité 100% authentique
 ✅ Paiement facile via ${payment}
 
-Commande maintenant ou écris-nous en DM ! 👇${hashtags}`;
+📩 Commande maintenant ou écris-nous en DM — dëgër na ! 👇${hashtags}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -215,11 +222,11 @@ export async function POST(req: NextRequest) {
   const payment = PAYMENT_LABELS[paymentMethod];
 
   const langMap: Record<string, string> = {
-    francais: "Rédige entièrement en français.",
-    wolof:    "Rédige entièrement en wolof (langue d'Afrique de l'Ouest parlée au Sénégal). Utilise un vocabulaire wolof authentique.",
-    anglais:  "Write entirely in English.",
-    puular:   "Rédige entièrement en pulaar/fuula (langue peule du Sénégal).",
-    serere:   "Rédige entièrement en sérère (langue du Sénégal).",
+    francais: "Rédige entièrement en français. Glisse naturellement une ou deux expressions locales imagées parmi : « Klasse », « c'est chaud », « paré », « dëgër na », « trop bien ça ».",
+    wolof:    "Rédige entièrement en wolof authentique. Intègre subtilement des expressions comme : « deuredj li », « gawa lool », « paré nga », « dëgër na », « sagnssé dëgg ».",
+    anglais:  "Write entirely in English. Weave in subtle Senegalese flair with expressions like \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\" to feel local.",
+    puular:   "Rédige entièrement en pulaar/fuula. Intègre des expressions locales comme : « mboddi », « jaraama », « ko woni » pour un ton authentique.",
+    serere:   "Rédige entièrement en sérère. Donne une âme locale avec des expressions authentiques sérères.",
   };
 
   const tonMap: Record<string, string> = {
@@ -229,18 +236,36 @@ export async function POST(req: NextRequest) {
     luxueux:       "ton luxueux, exclusif et sophistiqué",
   };
 
+  const platformContext = safePlateformes.includes("tiktok") || safePlateformes.includes("instagram")
+    ? "TikTok/Instagram (le HOOK doit arrêter le scroll en moins de 2 secondes)"
+    : safePlateformes.includes("whatsapp")
+      ? "WhatsApp (ton conversationnel, urgence immédiate)"
+      : "Snapchat (court, visuel, percutant)";
+
   try {
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `Tu es un expert en copywriting e-commerce mode au Sénégal pour la plateforme Sagnsé.
-Tu rédiges des copies de vente courtes, percutantes et adaptées aux réseaux sociaux dakarois.
-Style : élégance, classe, raffinement — le goût dakarois dans chaque mot.
-Utilise des émojis pertinents, des hashtags adaptés à la plateforme, et un style accrocheur.
+          content: `Tu es un copywriter expert du e-commerce sénégalais, spécialisé dans la vente de mode et de beauté sur les réseaux sociaux dakarois (Sagnsé).
+Chaque copie que tu génères est UNIQUE — structure de phrase, vocabulaire et accroche différents à chaque fois.
+Tu suis IMPÉRATIVEMENT cette structure en 3 blocs :
+
+**BLOC 1 — LE HOOK (2 lignes max)**
+Lance une punchline percutante, une question provocatrice OU une urgence culturelle sénégalaise (Tabaski, Gamou, Korité, sagnssé dëgg, mariages, tenue de fête).
+Le but : arrêter net le scroll sur ${platformContext}.
+
+**BLOC 2 — LE CORPS**
+Transforme le brief produit en bénéfices clients irrésistibles.
+Utilise des émojis pertinents, des listes à puces aérées, des formulations qui parlent à la femme dakaroise moderne.
+
+**BLOC 3 — L'APPEL À L'ACTION (CTA)**
+Incitation claire et urgente à commander maintenant via DM ou WhatsApp. Mentionne le moyen de paiement disponible.
+Termine par les hashtags adaptés à la plateforme.
+
 ${langMap[safeLangue]}
-Réponds uniquement avec la copie de vente — sans introduction ni commentaire.`,
+Réponds UNIQUEMENT avec la copie finale — zéro introduction, zéro commentaire, zéro titre de bloc.`,
         },
         {
           role: "user",
@@ -248,13 +273,14 @@ Réponds uniquement avec la copie de vente — sans introduction ni commentaire.
 Brief : ${brief}
 Plateformes : ${platformNames}
 Ton : ${tonMap[safeTon]}
-Moyen de paiement disponible : ${payment}
+Moyen de paiement : ${payment}
 
-Génère une copie de vente haute conversion pour ce produit.`,
+Génère une copie de vente haute conversion pour ce produit. Commence directement par le HOOK.`,
         },
       ],
       max_tokens: 600,
-      temperature: 0.85,
+      temperature: 0.9,
+      presence_penalty: 0.6,
     });
 
     const copy = completion.choices[0]?.message?.content ?? "";
