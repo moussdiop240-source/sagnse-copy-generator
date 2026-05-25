@@ -464,9 +464,17 @@ export default function Home() {
           )}
 
           {/* ── Footer ── */}
-          <p className="text-center text-xs text-violet-300/60 mt-4">
-            Sagnsé GenCopy SN · Fait avec ❤️ pour les marchands sénégalais
-          </p>
+          <div className="text-center mt-4 space-y-2">
+            <p className="text-xs text-violet-300/60">
+              Sagnsé GenCopy SN · Fait avec ❤️ pour les marchands sénégalais
+            </p>
+            <a
+              href="/admin"
+              className="inline-block text-xs text-violet-300/30 hover:text-violet-300/60 transition-colors duration-200"
+            >
+              Admin
+            </a>
+          </div>
         </div>
       </div>
     </div>
