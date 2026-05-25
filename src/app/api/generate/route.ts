@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { getTrialCount, incrementTrialCount, FREE_LIMIT_SERVER } from "@/lib/store";
 
 const VALID_PLATFORMS = new Set(["instagram", "snapchat", "whatsapp", "tiktok"]);
 const VALID_TONES     = new Set(["professionnel", "amical", "enthousiaste", "luxueux"]);
@@ -118,6 +119,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ copies: mockCopies(titre, brief, safePlateformes, safeTon, safeLangue, safePayment) });
   }
 
+  // Server-side free trial enforcement (bypasses localStorage manipulation)
+  const ip         = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const trialCount = await getTrialCount(ip);
+  if (trialCount >= FREE_LIMIT_SERVER) {
+    return NextResponse.json(
+      { error: "Limite gratuite atteinte. Veuillez passer au paiement.", limitReached: true },
+      { status: 403 }
+    );
+  }
+
   const client        = new OpenAI({ apiKey });
   const payment       = safePayment ? (PAYMENT_LABELS[safePayment] ?? "") : null;
   const platformKeys  = safePlateformes.join(", ");
@@ -199,6 +210,7 @@ Génère le JSON avec une copie haute conversion et culturellement authentique p
       if (!copies[p]) copies[p] = Object.values(copies)[0] ?? "";
     }
 
+    await incrementTrialCount(ip);
     return NextResponse.json({ copies });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur inconnue";

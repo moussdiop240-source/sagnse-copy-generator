@@ -109,8 +109,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ titre, brief, plateformes, ton, langue }),
       });
-      const data = await res.json() as { copies?: Record<string, string>; error?: string };
+      const data = await res.json() as { copies?: Record<string, string>; error?: string; limitReached?: boolean };
       if (!res.ok) {
+        if (data.limitReached) {
+          // Server confirmed limit — sync localStorage so the paywall shows
+          setGenCount(FREE_LIMIT);
+          localStorage.setItem(STORAGE_KEY, String(FREE_LIMIT));
+        }
         setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
       } else {
         const copies = data.copies ?? {};

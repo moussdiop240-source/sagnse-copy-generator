@@ -40,8 +40,12 @@ function getRedis(): Redis | null {
   return _redis;
 }
 
-const PENDING_TTL = 1800;   // 30 min  — payment window
-const RESULT_TTL  = 86_400; // 24 h    — result cache
+const PENDING_TTL = 1800;       // 30 min  — payment window
+const RESULT_TTL  = 86_400;     // 24 h    — result cache
+const TRIAL_TTL   = 2_592_000;  // 30 days — free trial window per IP
+const PAIDOK_TTL  = 604_800;    // 7 days  — payment confirmed, generation pending
+
+export const FREE_LIMIT_SERVER = 5;
 
 // In-memory fallback for local dev without Redis
 const memPending = new Map<string, PendingRequest>();
@@ -85,6 +89,42 @@ export async function getResult(id: string): Promise<CompletedResult | null> {
   const r = getRedis();
   if (r) return r.get<CompletedResult>(`res:${id}`);
   return memResults.get(id) ?? null;
+}
+
+// ── Free trial tracking by IP ────────────────────────────────────────────────
+
+export async function getTrialCount(ip: string): Promise<number> {
+  const r = getRedis();
+  if (!r) return 0; // dev mode: no Redis → unlimited
+  const count = await r.get<number>(`trials:${ip}`);
+  return count ?? 0;
+}
+
+export async function incrementTrialCount(ip: string): Promise<void> {
+  const r = getRedis();
+  if (!r) return;
+  const key   = `trials:${ip}`;
+  const count = await r.incr(key);
+  if (count === 1) await r.expire(key, TRIAL_TTL);
+}
+
+// ── Payment confirmed but generation still pending ───────────────────────────
+// Survives beyond the 30-min pending window so users can retry after a transient OpenAI failure.
+
+export async function storePaidConfirmed(id: string, data: PendingRequest): Promise<void> {
+  const r = getRedis();
+  if (r) await r.set(`paidok:${id}`, data, { ex: PAIDOK_TTL });
+}
+
+export async function getPaidConfirmed(id: string): Promise<PendingRequest | null> {
+  const r = getRedis();
+  if (r) return r.get<PendingRequest>(`paidok:${id}`);
+  return null;
+}
+
+export async function deletePaidConfirmed(id: string): Promise<void> {
+  const r = getRedis();
+  if (r) await r.del(`paidok:${id}`);
 }
 
 /**

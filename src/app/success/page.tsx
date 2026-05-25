@@ -7,9 +7,10 @@ import Link from "next/link";
 type Status = "verifying" | "ready" | "error";
 
 interface VerifyResponse {
-  copies?:    Record<string, string>;
-  error?:     string;
-  retryable?: boolean;
+  copies?:      Record<string, string>;
+  error?:       string;
+  retryable?:   boolean;
+  paymentSafe?: boolean;
 }
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -29,7 +30,8 @@ function SuccessContent() {
   const [errorMsg,  setErrorMsg]  = useState("");
   const [retryable, setRetryable] = useState(false);
   const [retrying,  setRetrying]  = useState(false);
-  const [copiedTab, setCopiedTab] = useState<string | null>(null);
+  const [copiedTab,    setCopiedTab]    = useState<string | null>(null);
+  const [paymentSafe,  setPaymentSafe]  = useState(false);
 
   const runVerify = useCallback(async () => {
     if (!requestId) {
@@ -53,6 +55,7 @@ function SuccessContent() {
         setStatus("error");
         setErrorMsg(data.error ?? "Une erreur est survenue.");
         setRetryable(data.retryable ?? false);
+        setPaymentSafe(data.paymentSafe ?? false);
       } else {
         setCopies(data.copies);
         setActiveTab(Object.keys(data.copies)[0] ?? "");
@@ -108,8 +111,14 @@ function SuccessContent() {
       <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-lg">
           <div className="bg-red-50 rounded-3xl shadow-2xl p-8 text-center space-y-5 animate-fadeInUp">
-            <div className="text-4xl">❌</div>
+            <div className="text-4xl">{paymentSafe ? "⚠️" : "❌"}</div>
             <p className="text-red-700 font-semibold">{errorMsg}</p>
+            {paymentSafe && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left space-y-1">
+                <p className="text-amber-800 text-sm font-semibold">✅ Votre paiement de 500 FCFA est confirmé et sécurisé.</p>
+                <p className="text-amber-700 text-xs">La génération a échoué temporairement. Cliquez &ldquo;Réessayer&rdquo; ou conservez ce lien — il reste valide 7 jours.</p>
+              </div>
+            )}
             {requestId && (
               <p className="text-xs text-gray-400 font-mono break-all">Réf : {requestId}</p>
             )}
