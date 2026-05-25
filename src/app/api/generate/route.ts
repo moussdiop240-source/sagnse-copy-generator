@@ -134,12 +134,21 @@ export async function POST(req: NextRequest) {
   const platformKeys  = safePlateformes.join(", ");
   const platformNames = safePlateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
 
-  const langMap: Record<string, string> = {
-    francais: "Rédige en français avec une âme dakaroise. Injecte naturellement des expressions sénégalaises imagées : « Klasse », « c'est chaud », « paré nga », « dëgër na », « gawa lool », « Wawaw », « Neexna », « Xessal ». Mélange l'élégance du français et l'authenticité culturelle de Dakar.",
-    wolof:    "Rédige entièrement en wolof authentique. Utilise des expressions percutantes : « deuredj li », « gawa lool », « paré nga », « sagnssé dëgg », « xam nga », « dafa neex ».",
-    anglais:  "Write entirely in English with bold Senegalese Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\", \"sagnsé dëgg\".",
-    puular:   "Rédige entièrement en pulaar/fuula. Utilise des expressions authentiques : « mboddi », « jaraama », « ko woni », « waawnude », « mo weli ».",
-    serere:   "Rédige entièrement en sérère avec des expressions et tournures de phrases authentiques sérères.",
+  const langNameMap: Record<string, string> = {
+    francais: "français",
+    wolof:    "wolof",
+    anglais:  "anglais",
+    puular:   "pulaar (fuula)",
+    serere:   "sérère",
+  };
+
+  // Hard language constraint — placed first in the prompt so the model cannot ignore it
+  const langConstraint: Record<string, string> = {
+    francais: "Rédige en FRANÇAIS. Injecte des expressions sénégalaises : « Klasse », « c'est chaud », « paré nga », « dëgër na », « gawa lool ».",
+    wolof:    "⚠️ LANGUE OBLIGATOIRE : WOLOF UNIQUEMENT. Chaque mot de la copie DOIT être en wolof. Zéro phrase en français. Utilise : « deuredj li », « gawa lool », « paré nga », « sagnssé dëgg », « xam nga », « dafa neex », « amul solo », « jënd léegi ».",
+    anglais:  "⚠️ MANDATORY LANGUAGE: ENGLISH ONLY. Every word must be in English. Zero French. Use Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\".",
+    puular:   "⚠️ LANGUE OBLIGATOIRE : PULAAR (FUULA) UNIQUEMENT. Chaque mot de la copie DOIT être en pulaar. Zéro phrase en français. Utilise des expressions authentiques pulaar : « mboddi », « jaraama », « ko woni », « waawnude », « mo weli », « ndeke », « nguurndam ».",
+    serere:   "⚠️ LANGUE OBLIGATOIRE : SÉRÈRE UNIQUEMENT. Chaque mot de la copie DOIT être en sérère. Zéro phrase en français. Utilise des expressions et tournures authentiques sérères.",
   };
 
   const tonMap: Record<string, string> = {
@@ -163,22 +172,23 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `Tu es Sagnese AI, un copywriter d'élite spécialisé dans le e-commerce et le commerce social sénégalais à Dakar.
+          content: `${langConstraint[safeLangue] ?? langConstraint.francais}
+
+Tu es Sagnese AI, un copywriter d'élite spécialisé dans le e-commerce et le commerce social sénégalais à Dakar.
 Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces clés : ${platformKeys}.
 Chaque valeur est une copie de vente UNIQUE, haute conversion, culturellement authentique et optimisée pour sa plateforme.
 
+RÈGLE ABSOLUE N°1 — LANGUE : ${(langConstraint[safeLangue] ?? langConstraint.francais).replace("⚠️ ", "")}
+
 STRUCTURE OBLIGATOIRE pour chaque copie (respecter cet ordre) :
-1. LE HOOK — Les 2 premières lignes : punchline percutante selon le ton OU question provocatrice OU urgence culturelle sénégalaise (Tabaski, Gamou, Korité, sagnsé dëgg, rentrée scolaire) pour ARRÊTER instantanément le scroll mobile.
+1. LE HOOK — Les 2 premières lignes : punchline percutante selon le ton OU question provocatrice OU urgence culturelle sénégalaise (Tabaski, Gamou, Korité, rentrée scolaire) pour ARRÊTER instantanément le scroll mobile.
 2. LE CORPS — Transformer le brief en bénéfices clients irrésistibles. Aérer avec des émojis naturels et des listes à puces. Mentionner prix en FCFA si présent dans le brief, livraison rapide (Dakar, Thiès, Mbour, tout le Sénégal).
 3. L'APPEL À L'ACTION (CTA) — Incitation claire et directe à commander immédiatement via lien en bio, DM, ou message WhatsApp.
 
 RÈGLES STRICTES PAR PLATEFORME :
 ${platformRules}
 
-VARIABILITÉ CULTURELLE OBLIGATOIRE :
-Injecte de façon fluide et naturelle des expressions urbaines locales imagées pour donner une âme unique à chaque texte.
-${langMap[safeLangue] ?? langMap.francais}
-Ton : ${tonMap[safeTon] ?? tonMap.professionnel}
+TON : ${tonMap[safeTon] ?? tonMap.professionnel}
 
 Format de réponse JSON (exemple) :
 { "instagram": "texte complet ici...", "whatsapp": "texte complet ici..." }`,
@@ -188,9 +198,10 @@ Format de réponse JSON (exemple) :
           content: `Produit : ${titre}
 Brief : ${brief}
 Plateformes : ${platformNames}
+Langue de rédaction : ${langNameMap[safeLangue] ?? "français"} — TOUTE la copie doit être rédigée en ${langNameMap[safeLangue] ?? "français"}, pas en français.
 ${payment ? `Moyen de paiement : ${payment}` : ""}
 
-Génère le JSON avec une copie haute conversion et culturellement authentique pour chaque plateforme.`,
+Génère le JSON. Chaque copie doit être intégralement en ${langNameMap[safeLangue] ?? "français"}.`,
         },
       ],
       max_tokens: 1400,
