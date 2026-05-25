@@ -51,8 +51,7 @@ export async function POST(req: NextRequest) {
   const requestId = randomUUID();
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const price     = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
-  const apiKey    = process.env.CINETPAY_API_KEY ?? "";
-  const siteId    = process.env.CINETPAY_SITE_ID ?? "";
+  const masterKey = process.env.PAYDUNYA_MASTER_KEY ?? "";
 
   const formData = {
     titre:         titre.trim(),
@@ -64,51 +63,70 @@ export async function POST(req: NextRequest) {
     createdAt:     Date.now(),
   };
 
-  // Dev mode: no CinetPay keys → skip payment, go straight to /success
-  if (!apiKey) {
+  // Dev mode: no PayDunya keys → skip checkout, go straight to /success
+  if (!masterKey) {
     await storePending(requestId, { ...formData, paydunyaToken: "" });
     return NextResponse.json({
       checkoutUrl: `${appUrl}/success?requestId=${requestId}`,
     });
   }
 
+  const privateKey = process.env.PAYDUNYA_PRIVATE_KEY ?? "";
+  const apiToken   = process.env.PAYDUNYA_TOKEN ?? "";
+  const mode       = process.env.PAYDUNYA_MODE ?? "sandbox";
+  const baseUrl    = mode === "live"
+    ? "https://app.paydunya.com/api/v1"
+    : "https://app.paydunya.com/sandbox-api/v1";
+
   try {
-    const cinetRes = await fetchWithTimeout(
-      "https://api-checkout.cinetpay.com/v2/payment",
+    const paydunyaRes = await fetchWithTimeout(
+      `${baseUrl}/checkout-invoice/create`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type":         "application/json",
+          "PAYDUNYA-MASTER-KEY":  masterKey,
+          "PAYDUNYA-PRIVATE-KEY": privateKey,
+          "PAYDUNYA-TOKEN":       apiToken,
+        },
         body: JSON.stringify({
-          apikey:         apiKey,
-          site_id:        siteId,
-          transaction_id: requestId,
-          amount:         price,
-          currency:       "XOF",
-          description:    `Sagnsé — ${titre.trim().slice(0, 80)}`,
-          return_url:     `${appUrl}/success?requestId=${requestId}`,
-          notify_url:     `${appUrl}/api/payment/notify`,
-          channels:       "MOBILE_MONEY",
-          lang:           "fr",
+          invoice: {
+            total_amount: price,
+            description:  `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
+          },
+          store: {
+            name:        "Sagnsé",
+            website_url: appUrl,
+          },
+          actions: {
+            cancel_url:  appUrl,
+            return_url:  `${appUrl}/success?requestId=${requestId}`,
+          },
+          custom_data: { request_id: requestId },
         }),
       },
-      12_000
+      10_000
     );
 
-    const result = await cinetRes.json() as {
-      code?:    string;
-      message?: string;
-      data?: { payment_url?: string };
+    const result = await paydunyaRes.json() as {
+      response_code?: string;
+      response_text?: string;
+      description?:   string;
+      token?:         string;
     };
 
-    if (result.code !== "201" || !result.data?.payment_url) {
+    const rawUrl      = result.response_code === "00" ? result.response_text : undefined;
+    const checkoutUrl = rawUrl ?? undefined;
+
+    if (!checkoutUrl) {
       return NextResponse.json(
-        { error: result.message ?? "Erreur lors de la création du paiement." },
+        { error: result.description ?? "Erreur de création de facture PayDunya." },
         { status: 502 }
       );
     }
 
-    await storePending(requestId, { ...formData, paydunyaToken: "" });
-    return NextResponse.json({ checkoutUrl: result.data.payment_url });
+    await storePending(requestId, { ...formData, paydunyaToken: result.token ?? "" });
+    return NextResponse.json({ checkoutUrl });
 
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
@@ -117,7 +135,7 @@ export async function POST(req: NextRequest) {
         { status: 504 }
       );
     }
-    console.error("[/api/payment/initiate] CinetPay error:", err);
+    console.error("[/api/payment/initiate] PayDunya error:", err);
     return NextResponse.json(
       { error: "Erreur lors de l'initiation du paiement. Réessayez." },
       { status: 502 }

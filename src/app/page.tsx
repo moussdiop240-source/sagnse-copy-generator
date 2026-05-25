@@ -76,7 +76,7 @@ export default function Home() {
     }
     setError("");
 
-    // ── PAID FLOW: limit reached → initiate CinetPay payment ──
+    // ── PAID FLOW: limit reached → initiate PayDunya payment ──
     if (limitReached) {
       setInitiating(true);
       try {
