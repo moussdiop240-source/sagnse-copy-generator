@@ -55,7 +55,7 @@ export default function Home() {
 
   // Sync with server on mount so admin resets are reflected immediately on refresh
   useEffect(() => {
-    fetch("/api/trials/status")
+    fetch("/api/v1/usage")
       .then((r) => r.json())
       .then((data: { count?: number }) => {
         if (typeof data.count === "number") {
@@ -93,7 +93,7 @@ export default function Home() {
     if (limitReached) {
       setInitiating(true);
       try {
-        const res  = await fetch("/api/payment/initiate", {
+        const res  = await fetch("/api/v1/pay", {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ titre, brief, plateformes, ton, langue }),
@@ -117,7 +117,7 @@ export default function Home() {
     setActiveTab("");
     setLoading(true);
     try {
-      const res  = await fetch("/api/generate", {
+      const res  = await fetch("/api/v1/create", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ titre, brief, plateformes, ton, langue }),

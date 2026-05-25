@@ -44,7 +44,7 @@ function SuccessContent() {
     setStatus("verifying");
 
     try {
-      const res  = await fetch("/api/payment/verify", {
+      const res  = await fetch("/api/v1/confirm", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ requestId }),
