@@ -151,7 +151,7 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
     plateformes.includes("instagram") ? "- instagram : Hook PERCUTANT sur 2 lignes MAX (punchline ou urgence culturelle sénégalaise : Tabaski, Gamou, Korité, sagnsé dëgg) pour arrêter le scroll. Corps aéré avec émojis naturels, liste de bénéfices, prix en FCFA si applicable, livraison (Dakar/Thiès/Mbour). CTA vers lien en bio ou DM Instagram. Termine par un bloc de hashtags Dakar/Sénégal." : "",
     plateformes.includes("whatsapp")  ? "- whatsapp : Nom du produit en titre avec émojis. Texte descriptif court et direct (bénéfices clients). Tarif public en FCFA si applicable. Livraison rapide partout au Sénégal. Mention 'Stock limité !'. CTA explicite : 'Commandez directement ici' ou 'Répondez à ce message'." : "",
     plateformes.includes("tiktok")    ? "- tiktok : Format script vidéo avec DEUX sections distinctes obligatoires — '🎬 Visuel :' (décrire ce que la caméra montre, 1-2 lignes) puis '🎤 Audio/Texte à l'écran :' (voix-off accrocheuse de 15 secondes max, entre guillemets). Énergie maximale, ton percutant. Hashtags TikTok SN en fin." : "",
-    plateformes.includes("snapchat")  ? "- snapchat : Ultra-court (2-3 lignes MAX). Percutant et visuel. Urgence et exclusivité. CTA : 'Swipe up' ou 'DM direct'. Hashtag court optionnel." : "",
+    plateformes.includes("snapchat")  ? "- snapchat : Ultra-court (2-3 lignes MAX). Percutant et visuel. Urgence et exclusivité. CTA : utilise exactement le CTA Snapchat défini dans le bloc CTA ci-dessus — ne traduis pas, ne remplace pas par 'Swipe up'. Hashtag court optionnel." : "",
   ].filter(Boolean).join("\n");
 
   try {
