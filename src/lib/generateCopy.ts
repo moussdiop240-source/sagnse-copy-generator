@@ -119,6 +119,34 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
   const platformKeys  = plateformes.join(", ");
   const platformNames = plateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
 
+  const ctaBlock: Record<string, string> = {
+    francais: `CTA :
+  Instagram → "📩 Commande en DM ou lien en bio 👇" + hashtags
+  WhatsApp  → "📲 Répondez à ce message pour commander maintenant !"
+  TikTok    → CTA dans l'audio + hashtags
+  Snapchat  → "Swipe up 👆 ou DM direct !"`,
+    wolof: `CTA :
+  Instagram → "📩 DM kanam wala lien ci bio 👇" + hashtags
+  WhatsApp  → "📲 Bindal ma wax — gaaw !"
+  TikTok    → CTA ci audio + hashtags
+  Snapchat  → "Swipe up 👆 wala DM kanam !"`,
+    anglais: `CTA :
+  Instagram → "📩 DM to order or link in bio 👇" + hashtags
+  WhatsApp  → "📲 Reply to this message to order now!"
+  TikTok    → CTA in audio + hashtags
+  Snapchat  → "Swipe up 👆 or DM direct!"`,
+    puular: `CTA :
+  Instagram → "📩 Ndar DM maa walla yiyto liɗɗi bio 👇" + hashtags
+  WhatsApp  → "📲 Ndar miin, min njahata yeeso !"
+  TikTok    → CTA e pulaar e nder audio + hashtags
+  Snapchat  → "Yiyto kadi — ndar miin !"`,
+    serere: `CTA :
+  Instagram → "📩 Commande en DM ou lien en bio 👇" + hashtags
+  WhatsApp  → "📲 Réponds ici — Jàmm rekk, on s'occupe de toi !"
+  TikTok    → CTA dans l'audio + hashtags
+  Snapchat  → "Swipe up 👆 ou DM — Dii jàmm !"`,
+  };
+
   const platformRules = [
     plateformes.includes("instagram") ? "- instagram : Hook PERCUTANT sur 2 lignes MAX (punchline ou urgence culturelle sénégalaise : Tabaski, Gamou, Korité, sagnsé dëgg) pour arrêter le scroll. Corps aéré avec émojis naturels, liste de bénéfices, prix en FCFA si applicable, livraison (Dakar/Thiès/Mbour). CTA vers lien en bio ou DM Instagram. Termine par un bloc de hashtags Dakar/Sénégal." : "",
     plateformes.includes("whatsapp")  ? "- whatsapp : Nom du produit en titre avec émojis. Texte descriptif court et direct (bénéfices clients). Tarif public en FCFA si applicable. Livraison rapide partout au Sénégal. Mention 'Stock limité !'. CTA explicite : 'Commandez directement ici' ou 'Répondez à ce message'." : "",
@@ -148,11 +176,7 @@ La 1ère ligne = 1 affirmation percutante (jamais "?").
 
 HOOK : 1 seule ligne affirmative. Ligne vide après.
 CORPS : Bullets émojis variés (✅ 🌿 💡 🚀 💎 🎁). Prix FCFA. Livraison. Ligne vide après.
-CTA — adapte dans la langue choisie :
-  Instagram → DM ou lien bio + hashtags (ex: "📩 Commande en DM" / "Ndar DM maa" / "DM to order")
-  WhatsApp  → CTA direct dans la langue (ex: "Répondez à ce message" / "Bindal ma wax" / "Ndar miin, min njahata yeeso !" / "Reply to this message")
-  TikTok    → CTA dans l'audio dans la langue + hashtags
-  Snapchat  → Ultra-court dans la langue (ex: "Swipe up 👆" / "Yiyto kadi — ndar miin !" / "Swipe up or DM")
+${ctaBlock[langue] ?? ctaBlock.francais}
 
 ━━━ RÈGLES PAR PLATEFORME ━━━
 ${platformRules}
