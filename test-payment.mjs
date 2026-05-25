@@ -13,23 +13,19 @@ const PROD_URL = "https://sagnse-copy-generator.vercel.app";
   await page.screenshot({ path: "ss-test-01-home.png" });
   console.log("  screenshot: ss-test-01-home.png");
 
-  // ── Step 2: Fill form ───────────────────────────────────────────────
-  console.log("Step 2 — filling form…");
+  // ── Step 2: Fill form (free mode — no payment section visible) ────────
+  console.log("Step 2 — filling form in free mode (payment section must be hidden)…");
   await page.fill("#titre", "Robe Bazin brodée");
   await page.fill("#brief", "Robe en bazin riche 100% coton, broderie dorée col et manches, taille S à XL, livrée 24h à Dakar");
 
-  // Check platforms
   await page.locator('label:has-text("Instagram")').click();
   await page.locator('label:has-text("TikTok")').click();
-
-  // Select tone
   await page.selectOption("#ton", "luxueux");
-
-  // Select language
   await page.selectOption("#langue", "francais");
 
-  // Select payment method
-  await page.locator('label:has-text("Wave")').click();
+  // Verify payment section is NOT visible in free mode
+  const paymentVisibleFree = await page.locator('label:has-text("Wave")').isVisible().catch(() => false);
+  console.log("  Wave selector visible in free mode (expected: false):", paymentVisibleFree);
 
   await page.screenshot({ path: "ss-test-02-form-filled.png" });
   console.log("  screenshot: ss-test-02-form-filled.png");
@@ -41,14 +37,20 @@ const PROD_URL = "https://sagnse-copy-generator.vercel.app";
   await page.screenshot({ path: "ss-test-03-paid-mode.png" });
   console.log("  screenshot: ss-test-03-paid-mode.png");
 
-  // Re-fill after reload
+  // Re-fill after reload — now in paid mode, payment section must appear
   await page.fill("#titre", "Robe Bazin brodée");
   await page.fill("#brief", "Robe en bazin riche 100% coton, broderie dorée col et manches, taille S à XL, livrée 24h à Dakar");
   await page.locator('label:has-text("Instagram")').click();
   await page.locator('label:has-text("TikTok")').click();
   await page.selectOption("#ton", "luxueux");
   await page.selectOption("#langue", "francais");
-  await page.locator('label:has-text("Wave")').click();
+
+  // Verify payment section IS visible in paid mode, then select Wave
+  const paymentVisiblePaid = await page.locator('label:has-text("Wave")').isVisible().catch(() => false);
+  console.log("  Wave selector visible in paid mode (expected: true):", paymentVisiblePaid);
+  if (paymentVisiblePaid) {
+    await page.locator('label:has-text("Wave")').click();
+  }
 
   await page.screenshot({ path: "ss-test-04-paid-form.png" });
   console.log("  screenshot: ss-test-04-paid-form.png");
