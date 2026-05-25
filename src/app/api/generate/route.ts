@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     wolof:    "wolof",
     anglais:  "anglais",
     puular:   "pulaar (fuula)",
-    serere:   "sérère",
+    serere:   "français (avec expressions sérères)",
   };
 
   // Hard language constraint — placed first in the prompt so the model cannot ignore it
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
     wolof:    "⚠️ LANGUE OBLIGATOIRE : WOLOF UNIQUEMENT. Chaque mot de la copie DOIT être en wolof. Zéro phrase en français. Utilise : « deuredj li », « gawa lool », « paré nga », « sagnssé dëgg », « xam nga », « dafa neex », « amul solo », « jënd léegi ».",
     anglais:  "⚠️ MANDATORY LANGUAGE: ENGLISH ONLY. Every word must be in English. Zero French. Use Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\".",
     puular:   "⚠️ LANGUE OBLIGATOIRE : PULAAR (FUULA) UNIQUEMENT. Chaque mot de la copie DOIT être en pulaar. Zéro phrase en français. Utilise des expressions authentiques pulaar : « mboddi », « jaraama », « ko woni », « waawnude », « mo weli », « ndeke », « nguurndam ».",
-    serere:   "⚠️ LANGUE OBLIGATOIRE : SÉRÈRE UNIQUEMENT. Chaque mot de la copie DOIT être en sérère. Zéro phrase en français. Utilise des expressions et tournures authentiques sérères.",
+    serere:   "Rédige en FRANÇAIS avec une âme sérère authentique. Intègre naturellement des expressions et salutations sérères : « Nan nga def », « Jàmm rekk », « Mbegaan », « A dëkk », « Fanaan », « Dii jàmm », « Roog laa naan » (formule de bénédiction), et des références culturelles du Sine-Saloum. Mélange le français et la culture sérère de façon fluide et naturelle.",
   };
 
   const tonMap: Record<string, string> = {
