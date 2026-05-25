@@ -146,18 +146,38 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900">
 
       {/* ── Hero ── */}
-      <div className="px-4 pt-14 pb-10 text-center">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <span className="text-4xl font-extrabold tracking-tight text-white">Sagnsé</span>
+      <div className="px-4 pt-12 pb-10 text-center">
+
+        {/* Brand */}
+        <div className="inline-flex items-center gap-2 mb-6">
+          <span className="text-3xl font-extrabold tracking-tight text-white">Sagnsé</span>
           <span className="text-xs font-bold text-violet-300 uppercase tracking-widest border border-violet-500 rounded-full px-2.5 py-1">
             GenCopy SN
           </span>
         </div>
-        <p className="text-violet-200 text-base font-medium mb-6">
-          Votre expert en copie de vente IA pour les marchands sénégalais
+
+        {/* Hook — main headline */}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4 max-w-xl mx-auto">
+          Tes produits méritent des textes{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-indigo-300">
+            qui font acheter.
+          </span>
+        </h1>
+
+        {/* Sub-headline */}
+        <p className="text-violet-200 text-base leading-relaxed mb-3 max-w-md mx-auto">
+          Donne-nous ton produit — on écrit la copie en 10 secondes.
+          Instagram, WhatsApp, TikTok & Snapchat.
         </p>
+
+        {/* Tagline */}
+        <p className="text-violet-400 text-sm mb-7">
+          Votre expert en copie de vente pour les marchands
+        </p>
+
+        {/* Badges */}
         <div className="flex flex-wrap justify-center gap-2">
-          {["✨ IA GPT-4o", "🌍 5 langues", "📱 4 plateformes", "⚡ En secondes"].map((badge) => (
+          {["🌍 5 langues", "📱 4 plateformes", "⚡ En secondes", "🎁 5 essais gratuits"].map((badge) => (
             <span
               key={badge}
               className="text-xs font-semibold text-violet-200 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 backdrop-blur-sm"
