@@ -1,0 +1,9 @@
+"Modifie l'interface dans src/app/page.tsx pour ajuster l'affichage de la section de paiement selon les essais restants.
+
+Applique la logique logique suivante :
+
+    Masquage strict : Tant que le compteur d'essais gratuits restants (issu du localStorage ou du statut utilisateur) est supérieur à 0, la section de sélection du moyen de paiement (Wave / Orange Money) doit être totalement invisible à l'écran. L'utilisateur ne doit rien avoir à sélectionner.
+
+    Affichage conditionnel : Affiche la section 'Moyen de paiement' (les cases à cocher ou boutons radios Wave et Orange Money) uniquement lorsque les 5 essais gratuits sont entièrement épuisés (compteur à 0) et que le bouton principal bascule en mode payant 'Payer & Générer (500 FCFA)'.
+
+Nettoie le code pour éviter toute erreur de validation de formulaire si l'utilisateur clique sur 'Générer' pendant ses essais gratuits (le mode de paiement ne doit pas être requis tant qu'il reste des essais). Vérifie le build avec npm run build puis déploie la modification sur Vercel avec npx vercel --prod."

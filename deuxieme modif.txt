@@ -1,0 +1,16 @@
+La page de connexion PayDunya s'affiche toujours en Sandbox. Pour forcer l'affichage direct des moyens de paiement sans demander de mot de passe, modifie les paramètres de création de la facture (Invoice) dans notre API backend.
+
+Applique ces paramètres précis dans le corps de la requête envoyée à PayDunya :
+1. Ajoute ou passe le paramètre 'actions' (ou configuration équivalente selon le SDK) :
+   "actions": {
+     "cancel_url": "NOTRE_URL_DE_RETOUR",
+     "callback_url": "NOTRE_URL_DE_CALLBACK",
+     "return_url": "NOTRE_URL_DE_RETOUR"
+   }
+2. Configure l'affichage des canaux spécifiques pour masquer le portefeuille PayDunya global. Dans les paramètres de l'invoice, utilise l'option pour restreindre ou forcer directement les modes de paiement ("channels") si disponibles, ou désactive explicitement la connexion requise via :
+   'require_custom_credentials': false 
+   (ou tout paramètre du SDK désactivant le login PayDunya).
+
+Si le SDK de redirection de base ne permet pas de sauter cet écran en mode Sandbox, réécris la fonction pour utiliser un appel 'fetch' direct (POST) vers l'endpoint de l'API PayDunya v1 en configurant correctement le mode de paiement direct par redirection.
+
+Une fois modifié, lance 'npm run build' puis déploie avec 'npx vercel --prod'.
