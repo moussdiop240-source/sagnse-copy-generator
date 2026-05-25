@@ -1,0 +1,13 @@
+Je veux figer notre modèle économique de manière définitive et ultra-simple : uniquement du paiement direct à l'acte à 500 FCFA par génération dès que les 5 essais gratuits sont épuisés. Je ne veux ni abonnement mensuel, ni système de pack de jetons.
+
+Inspecte et ajuste src/app/page.tsx et l'endpoint de paiement pour valider cette logique :
+
+    Parcours utilisateur strict : >    - Essais 1 à 5 ➔ L'utilisateur remplit le formulaire, clique sur 'Générer', le texte s'affiche gratuitement.
+
+        Dès l'essai 6 ➔ Le bouton se transforme définitivement en 'Payer & Générer (500 FCFA)'. Chaque clic supplémentaire redirige le marchand vers PayDunya pour un paiement unique et isolé de 500 FCFA. Une fois payé, il obtient sa copie unique et le compteur reste bloqué à zéro essai gratuit.
+
+    Pas de stockage de crédits : >    Ne crée aucune table de base de données complexe ou d'état pour gérer des 'crédits restants' ou des 'recharges'. La règle est simple : 1 paiement成功 = 1 génération de texte immédiate.
+
+    Variables d'environnement : >    Assure-toi que la variable SAGNSE_PRICE_XOF est bien fixée à 500 dans .env.local et utilisée telle quelle.
+
+Nettoie le code si des restes de simulations précédentes traînent, garde l'interface ultra-propre et confirme-moi quand le parcours 500 FCFA par clic est parfaitement verrouillé."

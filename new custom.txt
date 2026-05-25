@@ -1,0 +1,19 @@
+e veux optimiser notre système de génération pour garantir deux choses essentielles : l'unicité des textes (pour que deux marchands n'aient jamais la même description) et la puissance marketing (générer des Hooks d'accroches irrésistibles qui attirent immédiatement le client).
+
+Inspecte le fichier qui gère le prompt OpenAI (comme src/lib/generateCopy.ts ou src/app/api/payment/verify/route.ts) et applique ces modifications :
+
+    Garantir l'unicité (Paramètres de l'IA) : >    Vérifie l'appel API OpenAI. Assure-toi que la temperature est réglée entre 0.85 et 0.95 (pour favoriser la créativité). Ajoute également un paramètre presence_penalty réglé à 0.6 pour forcer l'IA à changer de structure de phrase et de vocabulaire d'une génération à l'autre.
+
+    Structure de Copywriting (Le System Prompt) :
+    Réécris le rôle donné à l'IA (system prompt) pour lui imposer les règles marketing des réseaux sociaux actuels. L'IA doit agir comme un copywriter expert du e-commerce au Sénégal. Impose-lui cette structure stricte pour le résultat :
+
+        Le HOOK (L'accroche) : Les deux premières lignes doivent être une punchline percutante (en rapport avec le ton choisi), une question provocatrice ou une urgence culturelle liée au Sénégal (ex: Tabaski, Gamou, Korité, sagnssé dëgg), pour arrêter le scroll de l'utilisateur sur TikTok/Instagram/WhatsApp.
+
+        Le Corps du texte : Transformer le brief du marchand en bénéfices clients irrésistibles, aéré avec des émojis et des listes à puces.
+
+        L'Appel à l'action (CTA) : Un lien ou une incitation claire à commander immédiatement par WhatsApp ou message privé.
+
+    Variabilité culturelle : >    Ajoute dans les consignes du prompt que l'IA doit mélanger subtilement et de façon naturelle des expressions locales imagées selon la langue choisie (ex: Klasse, deuredj li, gawa lool, dëgër na, paré nga) pour donner une âme unique à chaque marque.
+
+Analyse notre fichier de génération actuel, améliore-le avec ces règles de pointe, et relance le serveur pour qu'on puisse tester la puissance des nouvelles accroches !"
+

@@ -1,33 +1,12 @@
-"Je veux que tu refasses complètement l'interface et la logique de l'application pour qu'elle corresponde exactement à mes nouveaux besoins. Voici les instructions :
-
-    Design UI (Matching Image) :
-
-        Fond de page gris clair, carte centrale blanche avec coins arrondis.
-
-        Titre de la carte : 'Générer une copie de vente'.
-
-        Bouton 'Générer' en violet vibrant (#6D28D9).
-
-        Les champs doivent être en français avec les placeholders de l'image (ex: 'Ex: Promo Ramadan – Huile de coco').
-
-    Champs du Formulaire :
-
-        Titre* (Input)
-
-        Brief produit* (Textarea - 2000 caractères max)
-
-        Plateformes* (Multi-sélection ou Checkboxes : IG, Snapchat, WhatsApp, TikTok)
-
-        Ton* (Dropdown : Professionnel, Amical, Enthousiaste, Luxueux)
-
-        Langue* (Dropdown : Français, Wolof, Anglais, puular, Serere)
-
-    Intelligence & Prompt (Système) :
-
-        Mets à jour la logique du backend (même si c'est encore le Mock API). Le système doit agir comme un Expert en copywriting e-commerce mode au Sénégal pour la plateforme Sagnsé.
-
-        Instructions de rédaction à intégrer : Format adapté au réseau, émojis, hashtags, style dakarois (élégance, classe, raffinement).
-
-    Paiement (Simulé) : Ajoute une petite section discrète pour choisir entre Wave ou Orange Money avant de pouvoir cliquer sur Générer.
-
-Modifie app/page.tsx et app/api/generate/route.ts en utilisant tes outils d'édition de fichiers. Une fois fini, relance le serveur pour que je puisse tester."
+"Ouvre le fichier GenCopy SN.txt situé dans le dossier du projet. Analyse son contenu et implémente l'ensemble des directives de design et fonctionnelles, tout en mettant à jour le code pour maintenir notre modèle économique validé.  Applique scrupuleusement ces consignes :Mise à jour de l'Interface Visuelle (Design UI & Formulaire) :
+- Ajuste l'interface de src/app/page.tsx pour correspondre à l'image du fichier joint : fond gris clair, carte centrale blanche à coins arrondis, titre exact 'Générer une copie de vente' et bouton 'Générer' de couleur violette (#6D28D9).
+- Configure les champs du formulaire en français:
+* Titre* (Input avec placeholder type 'Ex: Promo Ramadan – Huile de coco').
+* Brief produit* (Textarea limité à 2000 caractères max).
+* Plateformes* (Checkboxes : Instagram (IG), Snapchat, WhatsApp, TikTok).
+* Ton* (Dropdown : Professionnel, Amical, Enthousiaste, Luxueux).
+* Langue* (Dropdown incluant : Français, Wolof, Anglais, Puular, Serere).
+- Conserve la section discrète 'Moyen de paiement' permettant de choisir entre Wave ou Orange Money directement sur l'interface.  Maintien Strict du Modèle Économique Fige (500 FCFA à l'acte) :
+- Malgré les mentions de simulation du document GenCopy SN.txt, conserve absolument notre système réel : les 5 premiers essais gratuits enregistrés en local via localStorage, puis bascule automatique et définitive sur le prix unitaire réel de 500 FCFA par clic relié à PayDunya (via la variable SAGNSE_PRICE_XOF=500 de notre .env.local).  Garantis qu'il n'y a aucun ajout de système d'abonnement ou de pack de jetons.Synchronisation du Master Prompt (Expert Sagnsé) :
+- Assure-toi que l'invite système d'OpenAI configurée dans le backend traite le rédacteur comme un expert en copywriting e-commerce mode et commerce social au Sénégal pour la marque Sagnsé.
+- Intègre les nouvelles options de langues (comme le Puular ou le Serere) dans les instructions du prompt pour que l'IA adapte ses expressions et son raffinement selon le choix de l'utilisateur.  Préserve la structure marketing stricte validée (HOOK d'accroche percutant anti-scroll pour arrêter l'attention mobile + CORPS du texte aéré avec bénéfices clients et émojis + APPEL À L'ACTION précis ciblant WhatsApp ou le lien en bio).Effectue ces ajustements graphiques et textuels , vérifie l'absence de régressions dans les fichiers de route de paiement, puis relance une vérification de build (npm run build) pour confirmer que tout tourne parfaitement."

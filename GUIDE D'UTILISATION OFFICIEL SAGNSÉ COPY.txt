@@ -1,0 +1,142 @@
+===================================================================================
+GUIDE D'UTILISATION OFFICIEL : SAGNSÉ COPY
+Générateur de textes de vente e-commerce IA haute conversion pour le Sénégal
+===================================================================================
+
+Bienvenue dans le guide officiel de Sagnsé Copy. Cette plateforme web SaaS a été 
+spécifiquement conçue pour les marchands, créateurs de mode et vendeurs en ligne au 
+Sénégal. Elle automatise la rédaction de textes publicitaires percutants adaptés aux 
+codes culturels locaux, optimisés pour maximiser vos ventes sur les réseaux sociaux 
+(WhatsApp, Instagram, TikTok, Snapchat).
+
+-----------------------------------------------------------------------------------
+1. VUE D'ENSEMBLE & ARCHITECTURE GLOBALE
+-----------------------------------------------------------------------------------
+L'application se présente sous la forme d'un site web ultra-léger et moderne, 
+entièrement optimisé pour une utilisation sur smartphone. Le modèle économique est 
+basé sur un concept Freemium strict à l'acte :
+
+  * Les 5 Premiers Essais : Entièrement gratuits pour permettre à l'utilisateur de 
+    tester l'efficacité des accroches marketing.
+  * À partir de la 6ème Génération : Un paiement unique et sécurisé de 500 FCFA 
+    par clic est requis via l'intégration monétique nationale PayDunya (Wave et 
+    Orange Money).
+
+💡 Pourquoi ce modèle à l'acte ?
+Aucun abonnement mensuel contraignant ni système de jetons complexe n'est imposé. 
+Les marchands sénégalais fonctionnent au flux de leurs arrivages. Ils paient 500 FCFA 
+uniquement lorsqu'ils ont un produit concret à publier, garantissant une rentabilité 
+immédiate sur leurs ventes.
+
+-----------------------------------------------------------------------------------
+2. PARCOURS UTILISATEUR PAS À PAS
+-----------------------------------------------------------------------------------
+1. Étape 1 : Saisie des informations du produit
+   Le marchand arrive sur l'interface épurée et remplit un formulaire simple :
+   - Titre : Le nom commercial de l'article (ex: Ensemble Lin, Robe Wax).
+   - Brief produit : Une description libre avec ses mots (prix, couleurs, livraison, contact).
+
+2. Étape 2 : Configuration des critères de l'IA
+   L'utilisateur personnalise le rendu en cochant ses préférences :
+   - Plateformes : WhatsApp, Instagram, TikTok ou Snapchat.
+   - Ton : Professionnel, Amical, Enthousiaste ou Luxueux.
+   - Langue : Français, Wolof ou Anglais.
+
+3. Étape 3 : Facturation et Validation monétique
+   Si le quota gratuit est dépassé, le bouton devient "Payer & Générer (500 FCFA)". 
+   Un clic redirige instantanément l'utilisateur sur la page sécurisée PayDunya. Il 
+   saisit son numéro Wave ou Orange Money, valide son paiement, et son navigateur le 
+   ramène automatiquement sur l'application.
+
+4. Étape 4 : Récupération et Publication du texte
+   La page de succès affiche instantanément la description générée par l'IA. 
+   L'utilisateur utilise les boutons d'action rapide pour publier sa copie en moins 
+   de 2 secondes.
+
+-----------------------------------------------------------------------------------
+3. PUBLICATION SUR LES RÉSEAUX SOCIAUX
+-----------------------------------------------------------------------------------
+L'application intègre des mécanismes natifs pour exporter le contenu vers les 
+applications mobiles :
+
+● Pour WhatsApp (Statuts et Groupes)
+Le bouton vert [Partager sur WhatsApp] utilise l'API native de messagerie. En un clic, 
+l'application WhatsApp s'ouvre sur le téléphone du vendeur, le texte enrichi 
+d'émojis est pré-rempli dans sa barre de saisie, il n'a plus qu'à choisir "Mon Statut" 
+ou un groupe de clientes pour l'envoyer.
+
+● Pour TikTok, Instagram et Snapchat
+Le bouton [Copier le texte] sauvegarde instantanément la création dans le presse-papiers 
+du téléphone. Le marchand ouvre son réseau social préféré, charge sa photo ou vidéo, 
+effectue un appui long dans la zone de texte et clique sur "Coller".
+
+-----------------------------------------------------------------------------------
+4. CAS PRATIQUE DÉTAILLÉ : LE CAS DE FATOU
+-----------------------------------------------------------------------------------
+Pour illustrer la puissance marketing du système, voici l'historique complet d'une 
+génération réelle effectuée sur la plateforme.
+
+Données saisies par le marchand dans le formulaire :
+-----------------------------------------------------------------------------------
+Champ du Formulaire     | Contenu saisi par l'utilisateur
+-----------------------------------------------------------------------------------
+Titre du produit        | Ensemble Lin Haut de Gamme
+Brief produit           | Ensemble tunique et pantalon en lin premium, hyper 
+                        | confortable et classe pour la Tabaski. Prix : 35 000 FCFA. 
+                        | Disponible en bleu ciel, blanc et beige. Livraison rapide 
+                        | partout à Dakar. WhatsApp au 77XXXXXXX.
+Plateformes cochées     | Instagram & WhatsApp
+Ton sélectionné         | Enthousiaste
+Langue demandée         | Wolof
+-----------------------------------------------------------------------------------
+
+Grâce aux réglages de pointe configurés en arrière-plan (haute créativité et pénalité 
+de présence pour éviter les répétitions entre usagers), l'IA applique une structure 
+marketing stricte : Hook d'accroche culturel, bénéfices aérés, et appel à l'action immédiat.
+
+Résultats générés affichés sur l'écran de succès :
+
+[WhatsApp] Option 1 : Spéciale "Statut WhatsApp"
+-----------------------------------------------------------------------------------
+🌟 **Tabaski gorr la, sagnssé dëgg la !** 🌟
+
+Amoul sakh wëranti, paré nga pour deuredj li ? Découvrez nos tout nouveaux ensembles 
+tunique et pantalon en **Lin Premium** ! 😍✨ Klasse, léger et hyper confortable pour 
+le jour de la fête.
+
+🎨 **Coloris disponibles :** Bleu ciel 🐳, Blanc pur ❄️, Beige classe 🥖
+💰 **Prix :** 35 000 FCFA seulement !
+🚀 **Livraison :** Gawa lool partout à Dakar !
+
+📲 **⚠️ Réservez dès maintenant avant la rupture de stock !** Cliquez directement 
+ici pour commander sur WhatsApp : wa.me/22177XXXXXXX. *Dispo 24h/24 !* 🔽
+-----------------------------------------------------------------------------------
+
+[Instagram] Option 2 : Spéciale "Post Instagram / TikTok"
+-----------------------------------------------------------------------------------
+**Sagnssé bi dafa wara dëgër pour Tabaski bi !** 🌙✨
+
+Vous cherchez la tenue parfaite qui allie élégance traditionnelle et confort moderne ? 
+Ne cherchez plus. Notre ensemble en lin haut de gamme est fait pour vous. Que ce soit 
+pour la prière ou pour recevoir vos invités, soyez le plus élégant.
+
+Réf : *Édition Limitée Tabaski 2026* 👔
+📦 *Livraison rapide sur Dakar & envoi dans les régions.*
+
+#Tabaski2026 #Sagnse #ModeSenegal #DakarFashion #LinPremium #SenegalEntrepreneurs #Dakar
+-----------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------
+5. SÉCURITÉ & UNICITÉ ALGORITHMIQUE
+-----------------------------------------------------------------------------------
+Pour garantir la valeur de votre service et éviter que deux marchands concurrents 
+n'affichent les mêmes textes sur les réseaux, l'infrastructure embarque deux 
+sécurités natives :
+
+  * La pénalité de présence (Presence Penalty à 0.6) : Cette directive technique 
+    d'OpenAI pénalise l'utilisation répétée des mêmes mots d'une génération à l'autre, 
+    forçant l'IA à diversifier ses structures grammaticales.
+  * La créativité thermique (Temperature à 0.90) : L'algorithme introduit un hasard 
+    contrôlé au moment de choisir chaque mot successif, rendant statistiquement 
+    impossible l'obtention de deux copies identiques mot pour mot.
+===================================================================================

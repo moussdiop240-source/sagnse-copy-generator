@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# Local planning / API key files — never commit
+paydunya api.txt
+ss-*.png

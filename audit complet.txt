@@ -1,0 +1,25 @@
+Effectue un audit complet et une mise à jour définitive de notre application Next.js pour aligner parfaitement le code sur nos exigences fonctionnelles, marketing et économiques. Modifie les fichiers pertinents (`src/app/page.tsx`, `src/lib/generateCopy.ts`, `src/app/api/payment/initiate/route.ts`, `src/app/api/payment/verify/route.ts` et `src/lib/store.ts`) en appliquant strictement ces 4 piliers :
+
+1. VERROUILLAGE DU MODÈLE ÉCONOMIQUE (500 FCFA À L'ACTE)
+- Applique une logique Freemium stricte : l'utilisateur dispose de 5 essais gratuits (suivis via le `localStorage`). 
+- Dès le 6ème essai, le bouton se transforme définitivement en "Payer & Générer (500 FCFA)" (indexé sur la variable `SAGNSE_PRICE_XOF=500` du fichier `.env.local`).
+- Chaque clic supplémentaire génère une facture PayDunya unique et isolée. Une fois le paiement validé, l'utilisateur obtient sa copie unique et le compteur reste bloqué.
+- NETTOYAGE STRICT : Supprime toute logique passée ou résiduelle liée à des abonnements mensuels, des packs de recharges, des portefeuilles de jetons ou des statuts de comptes "Active/Unpaid" dans Airtable/Make.com. La règle est : 1 paiement valide = 1 génération immédiate. Plus de webhook ni de Ngrok.
+
+2. STRUCTURE DE COPYWRITING AVANCÉE (SYSTEM PROMPT)
+Réécris l'invite système d'OpenAI (`system prompt`) pour configurer l'IA en tant que "Sagnese AI", un copywriter d'élite spécialisé dans le commerce social sénégalais à Dakar. Impose une structure marketing stricte où chaque résultat doit afficher les options demandées avec ce découpage précis :
+- LE HOOK (L'accroche) : Les deux premières lignes de chaque option doivent être une punchline percutante (selon le ton choisi), une question provocatrice ou une urgence culturelle liée au Sénégal (ex: Tabaski, Gamou, Korité, sagnsé dëgg) pour arrêter instantanément le scroll sur mobile.
+- LE CORPS DU TEXTE : Transformer le brief brut du marchand en bénéfices clients irrésistibles, fortement aéré avec des émojis naturels et des listes à puces pour maximiser la lisibilité sur smartphone.
+- L'APPEL À L'ACTION (CTA) : Une incitation claire et directe à commander immédiatement via le lien en bio ou par message WhatsApp.
+
+3. CONFORMITÉ DES OPTIONS ET FORMATS ATTENDUS
+Assure-toi que l'IA génère strictement la mise en page et les options suivantes, sans aucun autre texte de transition :
+- 🛍️ OPTION 1: INSTAGRAM CAPTION (Hook, bénéfices, Prix en CFA, Livraison Dakar/Thies/Mbour, CTA).
+- 💬 OPTION 2: TEXTE CATALOGUE WHATSAPP (Nom du produit, texte descriptif court, Tarif public en CFA, Livraison rapide Sénégal, Stock limité).
+- 🎬 OPTION 3: CONCEPT VIDÉO TIKTOK (Script brief avec séparation claire : 'Visuel: [...]' et 'Audio / Texte à l'écran: [...]' pour une voix-off accrocheuse de 15 secondes).
+
+4. GARANTIE D'UNICITÉ ET VARIABILITÉ CULTURELLE
+- Dans l'appel API OpenAI, configure une `temperature` élevée entre 0.85 et 0.95 ainsi qu'une `presence_penalty` réglée à 0.6 pour forcer l'IA à diversifier ses structures de phrases et son vocabulaire d'une génération à l'autre (sécurité anti-répétition pour deux marchands concurrents).
+- Si l'utilisateur choisit l'option de langue mixte ("Style Dakar Populaire"), impose à l'IA d'injecter de façon fluide et naturelle des expressions urbaines locales imagées (ex: Klasse, deuredj li, gawa lool, dëgër na, paré nga, Wawaw, Neexna, Xessal) pour donner une âme unique à la marque.
+
+Analyse l'arborescence, nettoie les anciens endpoints inutilisés, intègre ces règles d'or marketing au prompt et relance le serveur une fois la restructuration validée.

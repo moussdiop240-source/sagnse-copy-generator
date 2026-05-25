@@ -1,10 +1,17 @@
-"Je veux ajouter une logique Freemium à notre application. L'objectif est de limiter l'utilisation gratuite pour inciter les utilisateurs à utiliser nos moyens de paiement. Applique ces modifications dans src/app/page.tsx et src/app/api/generate/route.ts :
+"Faisons une mise à jour et une vérification stricte du modèle économique que nous avons implémenté. Je veux verrouiller définitivement l'application sur le modèle : uniquement du paiement direct à l'acte à 500 FCFA par génération dès que les 5 essais gratuits sont épuisés. Je ne veux ni abonnement mensuel, ni système de pack de jetons, ni portefeuille de crédits virtuels.
 
+Inspecte et ajuste les fichiers src/app/page.tsx, src/app/api/payment/initiate/route.ts et src/app/api/payment/verify/route.ts pour valider cette logique :
 
-Compteur Local (Essai Gratuit) : Utilise le localStorage du navigateur pour suivre le nombre de générations effectuées. Accorde 7 générations gratuites au total.
+    Parcours utilisateur sans fioritures :
 
-Blocage de l'Interface : Dès que la limite de 7 générations est atteinte, masque ou désactive le bouton violet 'Générer'. À la place, affiche un message clair et engageant en français : 'Vous avez atteint votre limite de 7 copies gratuites. Pour débloquer des générations illimitées, effectuez un paiement via Wave ou Orange Money.'
+        Essais 1 à 5 ➔ L'utilisateur génère ses textes gratuitement via le localStorage.
 
-Simuler le Déblocage par Paiement : Lorsque l'utilisateur sélectionne Wave ou Orange Money et clique sur un bouton de simulation de paiement (ou si le choix d'un mode de paiement réactive le bouton), réinitialise le compteur à zéro pour simuler un accès réussi.
+        Dès l'essai 6 ➔ Le bouton se transforme en 'Payer & Générer (500 FCFA)'. Chaque clic supplémentaire crée une facture PayDunya unique de 500 FCFA. Une fois payé, il obtient sa copie unique. Le compteur d'essais gratuits ne bouge plus et reste bloqué.
 
-Veille à ce que le design reste propre, s'intègre parfaitement avec notre mise en page actuelle et nos styles Tailwind, puis relance le serveur pour que je puisse tester."
+    Nettoyage du code :
+    Vérifie qu'il n'y a aucune logique complexe de 'crédits restants', de 'recharges de jetons' ou de profils d'abonnés dans notre store (src/lib/store.ts) ou nos routes. Supprime tout ce qui ressemble à ça. La règle est absolue : 1 paiement valide = 1 génération de texte immédiate.
+
+    Validation de la variable :
+    Assure-toi que le prix est directement indexé sur la variable SAGNSE_PRICE_XOF=500 de notre fichier .env.local.
+
+Analyse l'état actuel de notre code, supprime les résidus de fonctionnalités d'abonnement ou de jetons si tu en trouves, et confirme-moi quand le parcours 100% à l'acte est parfaitement fluide et sécurisé."
