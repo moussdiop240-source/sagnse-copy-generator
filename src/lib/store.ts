@@ -173,11 +173,11 @@ export async function incrementStats(langue: string, plateformes: string[]): Pro
   const r = getRedis();
   if (!r) return;
   try {
-    const pipeline = r.pipeline();
-    pipeline.incr("stats:total");
-    pipeline.incr(`stats:lang:${langue}`);
-    for (const p of plateformes) pipeline.incr(`stats:platform:${p}`);
-    await pipeline.exec();
+    await Promise.all([
+      r.incr("stats:total"),
+      r.incr(`stats:lang:${langue}`),
+      ...plateformes.map(p => r.incr(`stats:platform:${p}`)),
+    ]);
   } catch {
     // Non-critical — never block generation on analytics failure
   }
