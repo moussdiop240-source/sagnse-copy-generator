@@ -155,9 +155,11 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
     plateformes.includes("snapchat")  ? "- snapchat : Ultra-court (2-3 lignes MAX). Percutant et visuel. Urgence et exclusivité. CTA : utilise exactement le CTA Snapchat défini dans le bloc CTA ci-dessus — ne traduis pas, ne remplace pas par 'Swipe up'. Hashtag court optionnel." : "",
   ].filter(Boolean).join("\n");
 
+  const model = plateformes.length === 1 ? "gpt-4o-mini" : "gpt-4o";
+
   try {
     const completion = await client.chat.completions.create({
-      model: "gpt-4o",
+      model,
       response_format: { type: "json_object" },
       messages: [
         {

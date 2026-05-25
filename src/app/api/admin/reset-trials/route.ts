@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
+import { checkRateLimit } from "@/lib/store";
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const allowed = await checkRateLimit(`admin:${ip}`, 5, 300);
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
+
   const secret = process.env.ADMIN_SECRET;
   if (!secret) return NextResponse.json({ error: "Not configured." }, { status: 403 });
 
