@@ -90,14 +90,20 @@ const PROD_URL = "https://sagnse-copy-generator.vercel.app";
     console.log("  TikTok copy (first 120 chars):", ttText.slice(0, 120));
   }
 
-  // ── Step 5: Force paid mode + test payment flow ─────────────────────
+  // ── Step 5: Force paid mode + test phone number field ───────────────
   console.log("Step 5 — forcing paid mode (localStorage = 5)…");
   await page.evaluate(() => localStorage.setItem("sagnse_gen_count", "5"));
   await page.reload({ waitUntil: "networkidle" });
   await page.screenshot({ path: "ss-test-07-paid-mode.png" });
   console.log("  screenshot: ss-test-07-paid-mode.png");
 
-  // Re-fill after reload
+  // Check phone field is visible, Wave/OM radio buttons are gone
+  const phoneVisible = await page.locator('input[type="tel"]').isVisible().catch(() => false);
+  const waveVisible  = await page.locator('label:has-text("Wave")').isVisible().catch(() => false);
+  console.log("  Phone number field visible (expected: true):", phoneVisible);
+  console.log("  Wave radio button visible (expected: false):", waveVisible);
+
+  // Re-fill form after reload
   await page.fill("#titre", "Robe Bazin brodée");
   await page.fill("#brief", "Robe en bazin riche 100% coton, broderie dorée col et manches, taille S à XL, livrée 24h à Dakar");
   await page.locator('label:has-text("Instagram")').click();
@@ -106,9 +112,11 @@ const PROD_URL = "https://sagnse-copy-generator.vercel.app";
   await page.selectOption("#ton", "luxueux");
   await page.selectOption("#langue", "francais");
 
-  const paymentVisiblePaid = await page.locator('label:has-text("Wave")').isVisible().catch(() => false);
-  console.log("  Wave selector visible in paid mode (expected: true):", paymentVisiblePaid);
-  if (paymentVisiblePaid) await page.locator('label:has-text("Wave")').click();
+  // Fill phone number (Senegalese format: 9 digits starting with 7)
+  if (phoneVisible) {
+    await page.fill('input[type="tel"]', "77 123 45 67");
+    console.log("  Phone number filled: 77 123 45 67");
+  }
 
   await page.screenshot({ path: "ss-test-08-paid-form.png" });
   console.log("  screenshot: ss-test-08-paid-form.png");

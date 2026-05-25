@@ -27,10 +27,6 @@ const LANGUAGES = [
   { value: "serere",   label: "Sérère" },
 ];
 
-const PAYMENT_METHODS = [
-  { value: "wave",         label: "Wave" },
-  { value: "orange_money", label: "Orange Money" },
-];
 
 const PLATFORM_LABELS: Record<string, string> = {
   instagram: "Instagram",
@@ -45,7 +41,7 @@ export default function Home() {
   const [plateformes, setPlateformes]     = useState<string[]>([]);
   const [ton, setTon]                     = useState("professionnel");
   const [langue, setLangue]               = useState("francais");
-  const [paymentMethod, setPaymentMethod]   = useState("");
+  const [phoneNumber, setPhoneNumber]       = useState("");
   const [generatedCopies, setGeneratedCopies] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab]           = useState("");
   const [loading, setLoading]               = useState(false);
@@ -81,9 +77,12 @@ export default function Home() {
       setError("Veuillez sélectionner au moins une plateforme.");
       return;
     }
-    if (limitReached && !paymentMethod) {
-      setError("Veuillez choisir un moyen de paiement pour continuer.");
-      return;
+    if (limitReached) {
+      const cleaned = phoneNumber.replace(/\s/g, "");
+      if (!cleaned || !/^7[0-8]\d{7}$/.test(cleaned)) {
+        setError("Numéro invalide. Format attendu : 7X XXX XX XX (9 chiffres, ex: 77 123 45 67).");
+        return;
+      }
     }
     setError("");
 
@@ -94,7 +93,7 @@ export default function Home() {
         const res = await fetch("/api/payment/initiate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ titre, brief, plateformes, ton, langue, paymentMethod }),
+          body: JSON.stringify({ titre, brief, plateformes, ton, langue, phoneNumber: phoneNumber.replace(/\s/g, "") }),
         });
         const data = await res.json() as { checkoutUrl?: string; error?: string };
         if (!res.ok) {
@@ -300,36 +299,28 @@ export default function Home() {
               <>
                 <div className="border-t border-gray-100 pt-1" />
                 <div className="space-y-2">
-                  <p className="text-sm font-semibold text-gray-700">
-                    Moyen de paiement <span className="text-violet-600">*</span>
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-gray-700">
+                      Numéro Wave / Orange Money <span className="text-violet-600">*</span>
+                    </p>
+                    <span className="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 rounded-full px-3 py-1">
+                      500 FCFA
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-400">
-                    Sélectionnez votre moyen de paiement (500 FCFA) pour débloquer la génération.
+                    Saisissez votre numéro mobile. PayDunya le pré-remplira automatiquement sur la page de paiement.
                   </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {PAYMENT_METHODS.map((pm) => {
-                      const selected = paymentMethod === pm.value;
-                      return (
-                        <label
-                          key={pm.value}
-                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all text-sm ${
-                            selected
-                              ? "border-violet-500 bg-violet-50 ring-1 ring-violet-500 text-violet-700 font-semibold"
-                              : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value={pm.value}
-                            checked={selected}
-                            onChange={() => setPaymentMethod(pm.value)}
-                            className="accent-violet-600"
-                          />
-                          {pm.label}
-                        </label>
-                      );
-                    })}
+                  <div className="flex items-center gap-2 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent transition">
+                    <span className="text-sm text-gray-500 font-medium select-none whitespace-nowrap">🇸🇳 +221</span>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      placeholder="77 XXX XX XX"
+                      value={phoneNumber}
+                      onChange={(e) => { setPhoneNumber(e.target.value); setError(""); }}
+                      maxLength={12}
+                      className="flex-1 bg-transparent text-gray-900 text-sm placeholder-gray-400 focus:outline-none"
+                    />
                   </div>
                 </div>
               </>

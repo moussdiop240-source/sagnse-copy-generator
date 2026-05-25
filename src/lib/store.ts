@@ -7,6 +7,7 @@ export interface PendingRequest {
   ton: string;
   langue: string;
   paymentMethod: string;
+  phoneNumber?: string;
   paydunyaToken: string;
   createdAt: number;
 }

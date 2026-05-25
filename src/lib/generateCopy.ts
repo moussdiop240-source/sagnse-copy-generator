@@ -55,7 +55,7 @@ function mockOnePlatform(
 }
 
 function mockCopies(input: GenerateInput): Record<string, string> {
-  const { titre, brief, plateformes, ton, paymentMethod } = input;
+  const { titre, brief, plateformes, ton, paymentMethod = "mobile" } = input;
   const result: Record<string, string> = {};
   for (const p of plateformes) result[p] = mockOnePlatform(titre, brief, p, ton, paymentMethod);
   return result;
@@ -67,7 +67,7 @@ export interface GenerateInput {
   plateformes: string[];
   ton: string;
   langue: string;
-  paymentMethod: string;
+  paymentMethod?: string;
 }
 
 export class GenerateError extends Error {
@@ -81,7 +81,7 @@ export class GenerateError extends Error {
 }
 
 export async function generateCopy(input: GenerateInput, apiKey: string): Promise<Record<string, string>> {
-  const { titre, brief, plateformes, ton, langue, paymentMethod } = input;
+  const { titre, brief, plateformes, ton, langue, paymentMethod = "mobile" } = input;
 
   if (!apiKey || apiKey.length < 20) {
     await new Promise((r) => setTimeout(r, 800));
@@ -90,7 +90,7 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
 
   const client = new OpenAI({ apiKey, timeout: 30_000, maxRetries: 1 });
 
-  const payment       = PAYMENT_LABELS[paymentMethod] ?? paymentMethod;
+  const payment       = PAYMENT_LABELS[paymentMethod] ?? "paiement mobile";
   const platformKeys  = plateformes.join(", ");
   const platformNames = plateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
 

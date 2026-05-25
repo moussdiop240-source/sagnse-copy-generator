@@ -5,7 +5,6 @@ import { storePending } from "@/lib/store";
 const VALID_PLATFORMS = new Set(["instagram", "snapchat", "whatsapp", "tiktok"]);
 const VALID_TONES     = new Set(["professionnel", "amical", "enthousiaste", "luxueux"]);
 const VALID_LANGUAGES = new Set(["francais", "wolof", "anglais", "puular", "serere"]);
-const VALID_PAYMENTS  = new Set(["wave", "orange_money"]);
 
 function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
   const ctrl  = new AbortController();
@@ -25,12 +24,12 @@ export async function POST(req: NextRequest) {
     titre,
     brief,
     plateformes,
-    ton          = "professionnel",
-    langue       = "francais",
-    paymentMethod,
+    ton         = "professionnel",
+    langue      = "francais",
+    phoneNumber,
   } = body as {
     titre?: string; brief?: string; plateformes?: unknown;
-    ton?: string; langue?: string; paymentMethod?: string;
+    ton?: string; langue?: string; phoneNumber?: string;
   };
 
   if (!titre?.trim() || !brief?.trim()) {
@@ -46,17 +45,22 @@ export async function POST(req: NextRequest) {
   if (safePlateformes.length === 0) {
     return NextResponse.json({ error: "Plateforme(s) non reconnue(s)." }, { status: 400 });
   }
-  if (!paymentMethod || !VALID_PAYMENTS.has(paymentMethod)) {
-    return NextResponse.json({ error: "Moyen de paiement invalide ou manquant." }, { status: 400 });
+
+  const cleaned = (phoneNumber ?? "").replace(/\s/g, "");
+  if (!cleaned || !/^7[0-8]\d{7}$/.test(cleaned)) {
+    return NextResponse.json(
+      { error: "Numéro invalide. Format attendu : 7X XXX XX XX (9 chiffres, ex: 771234567)." },
+      { status: 400 }
+    );
   }
 
   const safeTon    = VALID_TONES.has(ton ?? "")        ? ton!    : "professionnel";
   const safeLangue = VALID_LANGUAGES.has(langue ?? "") ? langue! : "francais";
 
-  const requestId  = randomUUID();
-  const appUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const price      = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
-  const masterKey  = process.env.PAYDUNYA_MASTER_KEY ?? "";
+  const requestId = randomUUID();
+  const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const price     = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
+  const masterKey = process.env.PAYDUNYA_MASTER_KEY ?? "";
 
   const formData = {
     titre:         titre.trim(),
@@ -64,7 +68,8 @@ export async function POST(req: NextRequest) {
     plateformes:   safePlateformes,
     ton:           safeTon,
     langue:        safeLangue,
-    paymentMethod,
+    phoneNumber:   cleaned,
+    paymentMethod: "mobile",
     createdAt:     Date.now(),
   };
 
@@ -76,7 +81,6 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Live mode: create PayDunya invoice (10 s hard timeout)
   const privateKey = process.env.PAYDUNYA_PRIVATE_KEY ?? "";
   const apiToken   = process.env.PAYDUNYA_TOKEN ?? "";
   const mode       = process.env.PAYDUNYA_MODE ?? "sandbox";
@@ -90,7 +94,7 @@ export async function POST(req: NextRequest) {
       {
         method: "POST",
         headers: {
-          "Content-Type":       "application/json",
+          "Content-Type":         "application/json",
           "PAYDUNYA-MASTER-KEY":  masterKey,
           "PAYDUNYA-PRIVATE-KEY": privateKey,
           "PAYDUNYA-TOKEN":       apiToken,
@@ -108,15 +112,20 @@ export async function POST(req: NextRequest) {
             cancel_url: appUrl,
             return_url: `${appUrl}/success?requestId=${requestId}`,
           },
+          // Pre-fill customer phone on PayDunya checkout page
+          customer: {
+            name:  "Client Sagnsé",
+            phone: `221${cleaned}`,
+          },
           custom_data: { request_id: requestId },
         }),
       },
-      10_000 // 10 s
+      10_000
     );
 
     const result = await paydunyaRes.json() as {
       response_code?: string;
-      response_text?: string;   // PayDunya returns the checkout URL here
+      response_text?: string;
       description?:   string;
       token?:         string;
     };
