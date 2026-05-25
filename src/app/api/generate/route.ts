@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER, checkRateLimit, getResult, storeResult } from "@/lib/store";
+import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER, checkRateLimit, getResult, storeResult, incrementStats } from "@/lib/store";
 import { generateCopy } from "@/lib/generateCopy";
 import { randomUUID, createHash } from "crypto";
 
@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
     if (cached) {
       const copies = JSON.parse(cached.copy) as Record<string, string>;
       await incrementBothTrialCounts(ip, uid);
+      incrementStats(safeLangue, safePlateformes).catch(() => {});
       const res = NextResponse.json({ copies });
       res.cookies.set("sagnse_uid", uid, { maxAge: 31_536_000, httpOnly: true, sameSite: "strict", path: "/", secure: true });
       return res;
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
     await storeResult(cacheKey, JSON.stringify(copies), 3600).catch(() => {});
 
     await incrementBothTrialCounts(ip, uid);
+    incrementStats(safeLangue, safePlateformes).catch(() => {});
     const res = NextResponse.json({ copies });
     res.cookies.set("sagnse_uid", uid, { maxAge: 31_536_000, httpOnly: true, sameSite: "strict", path: "/", secure: true });
     return res;

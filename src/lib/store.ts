@@ -165,6 +165,44 @@ export async function deletePaidConfirmed(id: string): Promise<void> {
   if (r) await r.del(`paidok:${id}`);
 }
 
+// ── Usage analytics ─────────────────────────────────────────────────────────
+// Fire-and-forget counters: stats:total, stats:lang:{langue}, stats:platform:{p}
+// Keys never expire — they accumulate forever for dashboard use.
+
+export async function incrementStats(langue: string, plateformes: string[]): Promise<void> {
+  const r = getRedis();
+  if (!r) return;
+  try {
+    const pipeline = r.pipeline();
+    pipeline.incr("stats:total");
+    pipeline.incr(`stats:lang:${langue}`);
+    for (const p of plateformes) pipeline.incr(`stats:platform:${p}`);
+    await pipeline.exec();
+  } catch {
+    // Non-critical — never block generation on analytics failure
+  }
+}
+
+export async function getStats(): Promise<Record<string, number>> {
+  const r = getRedis();
+  if (!r) return {};
+  try {
+    const [total, ...rest] = await Promise.all([
+      r.get<number>("stats:total"),
+      ...["francais", "wolof", "anglais", "puular", "serere"].map(l => r.get<number>(`stats:lang:${l}`)),
+      ...["instagram", "whatsapp", "tiktok", "snapchat"].map(p => r.get<number>(`stats:platform:${p}`)),
+    ]);
+    const langs   = ["francais", "wolof", "anglais", "puular", "serere"];
+    const platforms = ["instagram", "whatsapp", "tiktok", "snapchat"];
+    const result: Record<string, number> = { total: total ?? 0 };
+    langs.forEach((l, i)    => { result[`lang_${l}`]     = (rest[i] as number | null)              ?? 0; });
+    platforms.forEach((p, i) => { result[`platform_${p}`] = (rest[langs.length + i] as number | null) ?? 0; });
+    return result;
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Sliding-window rate limiter.
  * Returns true if the request is allowed, false if the limit is exceeded.
