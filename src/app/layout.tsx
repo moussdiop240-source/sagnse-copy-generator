@@ -15,6 +15,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sagnsé — Générateur de Copie de Vente",
   description: "Générez des copies de vente percutantes pour Instagram, TikTok, WhatsApp et Snapchat en français, wolof, anglais, pulaar et sérère.",
+  openGraph: {
+    title: "Sagnsé — Générateur de Copie de Vente",
+    description: "Créez des textes de vente professionnels pour vos produits en secondes. Disponible en français, wolof, anglais, pulaar et sérère.",
+    url: "https://sagnse-copy-generator.vercel.app",
+    siteName: "Sagnsé GenCopy SN",
+    locale: "fr_SN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Sagnsé — Générateur de Copie de Vente",
+    description: "Créez des textes de vente professionnels pour vos produits en secondes.",
+  },
 };
 
 export default function RootLayout({
