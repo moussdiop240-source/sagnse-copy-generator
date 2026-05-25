@@ -44,4 +44,9 @@ next-env.d.ts
 
 # Local planning / API key files — never commit
 paydunya api.txt
-ss-*.png
+*.txt
+*.PNG
+*.png
+.pw-session/
+.pw-cookies.json
+.pd-status.txt
