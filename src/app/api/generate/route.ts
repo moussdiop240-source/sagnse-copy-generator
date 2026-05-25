@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER } from "@/lib/store";
+import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER, checkRateLimit } from "@/lib/store";
 import { generateCopy } from "@/lib/generateCopy";
 import { randomUUID } from "crypto";
 
@@ -46,8 +46,17 @@ export async function POST(req: NextRequest) {
   const safeLangue  = VALID_LANGUAGES.has(langue ?? "")  ? langue!      : "francais";
   const safePayment = paymentMethod && VALID_PAYMENTS.has(paymentMethod) ? paymentMethod : null;
 
+  // Rate limit: 3 generations per IP per minute (prevents OpenAI cost blowout)
+  const ip      = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const allowed = await checkRateLimit(`gen:${ip}`, 3, 60);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Trop de requêtes. Attendez une minute avant de réessayer." },
+      { status: 429 }
+    );
+  }
+
   // Server-side free trial enforcement — IP + browser cookie (both must be bypassed)
-  const ip         = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const uid        = req.cookies.get("sagnse_uid")?.value || randomUUID();
   const trialCount = await getEffectiveTrialCount(ip, uid);
   if (trialCount >= FREE_LIMIT_SERVER) {

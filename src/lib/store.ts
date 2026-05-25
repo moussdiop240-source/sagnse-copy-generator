@@ -96,15 +96,24 @@ export async function getResult(id: string): Promise<CompletedResult | null> {
 
 async function _getCount(key: string): Promise<number> {
   const r = getRedis();
-  if (!r) return 0;
-  return (await r.get<number>(key)) ?? 0;
+  if (!r) return FREE_LIMIT_SERVER; // fail closed — deny free trials if Redis is unavailable
+  try {
+    return (await r.get<number>(key)) ?? 0;
+  } catch {
+    console.error("[store] Redis read failed — failing closed for key:", key);
+    return FREE_LIMIT_SERVER;
+  }
 }
 
 async function _increment(key: string): Promise<void> {
   const r = getRedis();
   if (!r) return;
-  const n = await r.incr(key);
-  if (n === 1) await r.expire(key, TRIAL_TTL);
+  try {
+    const n = await r.incr(key);
+    if (n === 1) await r.expire(key, TRIAL_TTL);
+  } catch {
+    console.error("[store] Redis increment failed for key:", key);
+  }
 }
 
 export async function getTrialCount(ip: string): Promise<number> {
