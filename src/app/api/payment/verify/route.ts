@@ -54,55 +54,58 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const masterKey = process.env.PAYDUNYA_MASTER_KEY ?? "";
+  const apiKey = process.env.CINETPAY_API_KEY ?? "";
+  const siteId = process.env.CINETPAY_SITE_ID ?? "";
 
-  // Live mode: verify payment status with PayDunya (8 s timeout)
-  if (masterKey && pending.paydunyaToken) {
-    const mode    = process.env.PAYDUNYA_MODE ?? "sandbox";
-    const baseUrl = mode === "live"
-      ? "https://app.paydunya.com/api/v1"
-      : "https://app.paydunya.com/sandbox-api/v1";
-
+  // Live mode: verify payment status with CinetPay
+  if (apiKey) {
     try {
       const verifyRes = await fetchWithTimeout(
-        `${baseUrl}/checkout-invoice/confirm/${pending.paydunyaToken}`,
+        "https://api-checkout.cinetpay.com/v2/payment/check",
         {
-          headers: {
-            "PAYDUNYA-MASTER-KEY":  masterKey,
-            "PAYDUNYA-PRIVATE-KEY": process.env.PAYDUNYA_PRIVATE_KEY ?? "",
-            "PAYDUNYA-TOKEN":       process.env.PAYDUNYA_TOKEN ?? "",
-          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            apikey:         apiKey,
+            site_id:        siteId,
+            transaction_id: requestId,
+          }),
         },
-        8_000 // 8 s
+        8_000
       );
-      const verifyData = await verifyRes.json() as { status?: string };
 
-      if (verifyData.status !== "completed") {
+      const verifyData = await verifyRes.json() as {
+        code?:    string;
+        message?: string;
+        data?: { status?: string };
+      };
+
+      if (verifyData.data?.status !== "ACCEPTED") {
         return NextResponse.json(
-          { error: "Paiement non confirmé. Veuillez contacter le support si vous avez été débité.", retryable: false },
+          { error: "Paiement non confirmé. Contactez le support si vous avez été débité.", retryable: false },
           { status: 402 }
         );
       }
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
         return NextResponse.json(
-          { error: "Impossible de joindre PayDunya pour vérifier le paiement. Réessayez dans quelques instants.", retryable: true },
+          { error: "Impossible de vérifier le paiement pour l'instant. Réessayez.", retryable: true },
           { status: 504 }
         );
       }
-      console.error("[/api/payment/verify] PayDunya verify error:", err);
+      console.error("[/api/payment/verify] CinetPay verify error:", err);
       return NextResponse.json(
         { error: "Erreur lors de la vérification du paiement. Réessayez.", retryable: true },
         { status: 502 }
       );
     }
   }
-  // Dev mode (masterKey empty): skip verification — simulate successful payment
+  // Dev mode (no apiKey): skip verification — simulate successful payment
 
-  // Generate copy via OpenAI (or mock in dev)
-  const apiKey = process.env.OPENAI_API_KEY ?? "";
+  // Generate copy via OpenAI
+  const openaiKey = process.env.OPENAI_API_KEY ?? "";
   try {
-    const copies = await generateCopy(pending, apiKey);
+    const copies = await generateCopy(pending, openaiKey);
     await storeResult(requestId, JSON.stringify(copies));
     await deletePending(requestId);
     return NextResponse.json({ copies });
