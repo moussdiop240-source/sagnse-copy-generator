@@ -38,7 +38,12 @@ export async function POST(req: NextRequest) {
   // Return cached result on duplicate calls (user refreshes success page)
   const cached = await getResult(requestId);
   if (cached) {
-    return NextResponse.json({ copy: cached.copy });
+    try {
+      const copies = JSON.parse(cached.copy) as Record<string, string>;
+      return NextResponse.json({ copies });
+    } catch {
+      return NextResponse.json({ copies: { text: cached.copy } });
+    }
   }
 
   const pending = await getPending(requestId);
@@ -97,10 +102,10 @@ export async function POST(req: NextRequest) {
   // Generate copy via OpenAI (or mock in dev)
   const apiKey = process.env.OPENAI_API_KEY ?? "";
   try {
-    const copy = await generateCopy(pending, apiKey);
-    await storeResult(requestId, copy);
+    const copies = await generateCopy(pending, apiKey);
+    await storeResult(requestId, JSON.stringify(copies));
     await deletePending(requestId);
-    return NextResponse.json({ copy });
+    return NextResponse.json({ copies });
   } catch (err) {
     if (err instanceof GenerateError) {
       const map: Record<string, { msg: string; status: number; retryable: boolean }> = {

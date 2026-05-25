@@ -7,21 +7,29 @@ import Link from "next/link";
 type Status = "verifying" | "ready" | "error";
 
 interface VerifyResponse {
-  copy?:      string;
+  copies?:    Record<string, string>;
   error?:     string;
   retryable?: boolean;
 }
+
+const PLATFORM_LABELS: Record<string, string> = {
+  instagram: "Instagram",
+  snapchat:  "Snapchat",
+  whatsapp:  "WhatsApp",
+  tiktok:    "TikTok",
+};
 
 function SuccessContent() {
   const params    = useSearchParams();
   const requestId = params.get("requestId") ?? "";
 
-  const [copy,      setCopy]      = useState("");
+  const [copies,    setCopies]    = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState("");
   const [status,    setStatus]    = useState<Status>("verifying");
   const [errorMsg,  setErrorMsg]  = useState("");
   const [retryable, setRetryable] = useState(false);
   const [retrying,  setRetrying]  = useState(false);
-  const [copied,    setCopied]    = useState(false);
+  const [copiedTab, setCopiedTab] = useState<string | null>(null);
 
   const runVerify = useCallback(async () => {
     if (!requestId) {
@@ -41,12 +49,13 @@ function SuccessContent() {
       });
       const data: VerifyResponse = await res.json();
 
-      if (!res.ok || data.error || !data.copy) {
+      if (!res.ok || data.error || !data.copies) {
         setStatus("error");
         setErrorMsg(data.error ?? "Une erreur est survenue.");
         setRetryable(data.retryable ?? false);
       } else {
-        setCopy(data.copy);
+        setCopies(data.copies);
+        setActiveTab(Object.keys(data.copies)[0] ?? "");
         setStatus("ready");
       }
     } catch {
@@ -70,11 +79,11 @@ function SuccessContent() {
     setRetrying(false);
   }
 
-  async function handleCopy() {
+  async function handleCopy(platform: string) {
     try {
-      await navigator.clipboard.writeText(copy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(copies[platform] ?? "");
+      setCopiedTab(platform);
+      setTimeout(() => setCopiedTab(null), 2000);
     } catch { /* ignore */ }
   }
 
@@ -130,38 +139,66 @@ function SuccessContent() {
   }
 
   /* ── Ready ── */
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(copy)}`;
+  const platformKeys  = Object.keys(copies);
+  const whatsappText  = copies["whatsapp"] ?? Object.values(copies)[0] ?? "";
+  const whatsappUrl   = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          Copie générée
-        </h2>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150"
-        >
-          {copied ? (
-            <>
-              <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-green-600">Copié !</span>
-            </>
-          ) : (
-            <>
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-              </svg>
-              Copier
-            </>
-          )}
-        </button>
-      </div>
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        Copie générée
+      </h2>
 
-      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">{copy}</p>
+      {/* Tabs — only shown when multiple platforms */}
+      {platformKeys.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {platformKeys.map((platform) => (
+            <button
+              key={platform}
+              onClick={() => setActiveTab(platform)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                activeTab === platform
+                  ? "bg-violet-700 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {PLATFORM_LABELS[platform] ?? platform}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active copy + copy button */}
+      {activeTab && copies[activeTab] && (
+        <div className="space-y-3">
+          <div className="flex justify-end">
+            <button
+              onClick={() => handleCopy(activeTab)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150"
+            >
+              {copiedTab === activeTab ? (
+                <>
+                  <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-600">Copié !</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  Copier
+                </>
+              )}
+            </button>
+          </div>
+          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">
+            {copies[activeTab]}
+          </p>
+        </div>
+      )}
 
       <a
         href={whatsappUrl}

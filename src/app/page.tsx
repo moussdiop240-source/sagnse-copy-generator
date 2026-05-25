@@ -32,18 +32,26 @@ const PAYMENT_METHODS = [
   { value: "orange_money", label: "Orange Money" },
 ];
 
+const PLATFORM_LABELS: Record<string, string> = {
+  instagram: "Instagram",
+  snapchat:  "Snapchat",
+  whatsapp:  "WhatsApp",
+  tiktok:    "TikTok",
+};
+
 export default function Home() {
   const [titre, setTitre]                 = useState("");
   const [brief, setBrief]                 = useState("");
   const [plateformes, setPlateformes]     = useState<string[]>([]);
   const [ton, setTon]                     = useState("professionnel");
   const [langue, setLangue]               = useState("francais");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [generatedCopy, setGeneratedCopy] = useState("");
-  const [loading, setLoading]             = useState(false);
-  const [initiating, setInitiating]       = useState(false);
-  const [error, setError]                 = useState("");
-  const [copied, setCopied]               = useState(false);
+  const [paymentMethod, setPaymentMethod]   = useState("");
+  const [generatedCopies, setGeneratedCopies] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab]           = useState("");
+  const [loading, setLoading]               = useState(false);
+  const [initiating, setInitiating]         = useState(false);
+  const [error, setError]                   = useState("");
+  const [copiedTab, setCopiedTab]           = useState<string | null>(null);
 
   // Lazy initializer reads localStorage once on mount — avoids effect cascade
   const [genCount, setGenCount] = useState<number>(() => {
@@ -103,7 +111,8 @@ export default function Home() {
     }
 
     // ── FREE FLOW: limit not reached → call /api/generate directly ──
-    setGeneratedCopy("");
+    setGeneratedCopies({});
+    setActiveTab("");
     setLoading(true);
     try {
       const res = await fetch("/api/generate", {
@@ -111,11 +120,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ titre, brief, plateformes, ton, langue }),
       });
-      const data = await res.json() as { copy?: string; error?: string };
+      const data = await res.json() as { copies?: Record<string, string>; error?: string };
       if (!res.ok) {
         setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
       } else {
-        setGeneratedCopy(data.copy ?? "");
+        const copies = data.copies ?? {};
+        setGeneratedCopies(copies);
+        setActiveTab(Object.keys(copies)[0] ?? "");
         incrementCount();
       }
     } catch {
@@ -125,11 +136,11 @@ export default function Home() {
     }
   }
 
-  async function handleCopy() {
+  async function handleCopy(platform: string) {
     try {
-      await navigator.clipboard.writeText(generatedCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(generatedCopies[platform] ?? "");
+      setCopiedTab(platform);
+      setTimeout(() => setCopiedTab(null), 2000);
     } catch {
       setError("Impossible d'accéder au presse-papiers. Copiez le texte manuellement.");
     }
@@ -355,37 +366,62 @@ export default function Home() {
         </div>
 
         {/* Output Card (free-tier results only; paid results appear on /success) */}
-        {generatedCopy && (
+        {Object.keys(generatedCopies).length > 0 && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                Copie générée
-              </h2>
-              <button
-                onClick={handleCopy}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150"
-              >
-                {copied ? (
-                  <>
-                    <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-green-600">Copié !</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                    </svg>
-                    Copier
-                  </>
-                )}
-              </button>
-            </div>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">
-              {generatedCopy}
-            </p>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Copie générée
+            </h2>
+
+            {/* Tabs — only shown when multiple platforms */}
+            {Object.keys(generatedCopies).length > 1 && (
+              <div className="flex flex-wrap gap-2">
+                {Object.keys(generatedCopies).map((platform) => (
+                  <button
+                    key={platform}
+                    onClick={() => setActiveTab(platform)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                      activeTab === platform
+                        ? "bg-violet-700 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {PLATFORM_LABELS[platform] ?? platform}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Active copy + copy button */}
+            {activeTab && generatedCopies[activeTab] && (
+              <div className="space-y-3">
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => handleCopy(activeTab)}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150"
+                  >
+                    {copiedTab === activeTab ? (
+                      <>
+                        <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-green-600">Copié !</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                        </svg>
+                        Copier
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">
+                  {generatedCopies[activeTab]}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

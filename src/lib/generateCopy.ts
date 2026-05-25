@@ -13,82 +13,52 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 const LANG_MAP: Record<string, string> = {
-  francais: "Rédige entièrement en français. Glisse naturellement une ou deux expressions locales imagées parmi : « Klasse », « c'est chaud », « paré », « dëgër na », « trop bien ça ».",
-  wolof:    "Rédige entièrement en wolof authentique. Intègre subtilement des expressions comme : « deuredj li », « gawa lool », « paré nga », « dëgër na », « sagnssé dëgg ».",
-  anglais:  "Write entirely in English. Weave in subtle Senegalese flair with expressions like \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\" to feel local.",
-  puular:   "Rédige entièrement en pulaar/fuula. Intègre des expressions locales comme : « mboddi », « jaraama », « ko woni » pour un ton authentique.",
-  serere:   "Rédige entièrement en sérère. Donne une âme locale avec des expressions authentiques sérères.",
+  francais: "Rédige entièrement en français avec des expressions locales : « Klasse », « c'est chaud », « paré », « dëgër na ».",
+  wolof:    "Rédige entièrement en wolof authentique avec des expressions : « deuredj li », « gawa lool », « paré nga », « sagnssé dëgg ».",
+  anglais:  "Write entirely in English with Senegalese flair: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\".",
+  puular:   "Rédige entièrement en pulaar/fuula avec : « mboddi », « jaraama », « ko woni ».",
+  serere:   "Rédige entièrement en sérère avec des expressions authentiques sérères.",
 };
 
 const TON_MAP: Record<string, string> = {
-  professionnel: "ton professionnel, élégant et raffiné",
-  amical:        "ton amical, chaleureux et proche",
-  enthousiaste:  "ton enthousiaste, dynamique et percutant",
-  luxueux:       "ton luxueux, exclusif et sophistiqué",
+  professionnel: "professionnel, élégant et raffiné",
+  amical:        "amical, chaleureux et proche",
+  enthousiaste:  "enthousiaste, dynamique et percutant",
+  luxueux:       "luxueux, exclusif et sophistiqué",
 };
 
-function platformHashtags(plateformes: string[]): string {
-  const tags: string[] = [];
-  if (plateformes.includes("instagram")) tags.push("#Sagnsé", "#ModedakarSN", "#ShopeLocal");
-  if (plateformes.includes("tiktok"))    tags.push("#TikTokSN", "#DakarTrend", "#FYP");
-  if (plateformes.includes("snapchat"))  tags.push("#SnapSN");
-  return tags.length ? "\n" + tags.join(" ") : "";
+function hashtags(platform: string): string {
+  if (platform === "instagram") return "\n#Sagnsé #ModedakarSN #ShopeLocal";
+  if (platform === "tiktok")    return "\n#TikTokSN #DakarTrend #FYP";
+  if (platform === "snapchat")  return "\n#SnapSN";
+  return "";
 }
 
-function mockCopy(
+function mockOnePlatform(
   titre: string,
   brief: string,
-  plateformes: string[],
+  platform: string,
   ton: string,
-  langue: string,
   paymentMethod: string
 ): string {
   const payment  = PAYMENT_LABELS[paymentMethod] ?? paymentMethod;
-  const hashtags = platformHashtags(plateformes);
-  const isTikTok = plateformes.includes("tiktok");
-  const isIG     = plateformes.includes("instagram");
-  const isWA     = plateformes.includes("whatsapp");
+  const payLine  = `✅ Paiement facile via ${payment}`;
+  const tags     = hashtags(platform);
+  const em: Record<string, string> = { professionnel: "✨", amical: "😊", enthousiaste: "🔥", luxueux: "👑" };
+  const e = em[ton] ?? "✨";
 
-  if (langue === "wolof") {
-    const hooks = [
-      `🔥 Sagnssé dëgg — *${titre}* bi dafa ànd ak style bi!\nDëgër na, paré nga pour Korité ?`,
-      `✨ Dafa gawa lool ! *${titre}* — deuredj li ci Dakar!\nXam nga loolu ? Tey lañu ko jënd !`,
-    ];
-    const hook = hooks[Math.floor(Math.random() * hooks.length)];
-    return `${hook}\n\n✨ ${brief}\n\n${
-      isTikTok ? "⚡ TikTok SN dafa ko xam — scroll bul dem!" :
-      isIG     ? "📸 Feed bi dafa neex ak style Dakar klasse!" :
-      isWA     ? "📲 Sos sa xarit yi — promotion bi dafa tàmm!" :
-                 "💎 Élégance bi moy sa droit — Sagnsé!"
-    }\n\n✅ Yomb lañ ko jënd\n✅ Livraison ci Dakar\n✅ Jënd ci ${payment} — gaaw te yomb!\n\n📩 Bindal sa yëgël ci comment walla DM bu kanam! 👇${hashtags}`;
-  }
+  if (platform === "instagram") return `${e} *${titre}* — l'élégance dakaroise à son meilleur.\nScrolle pas ! Cette pièce est pour toi.\n\n✨ ${brief}\n\n📸 Parfait pour ton feed — klasse garantie.\n\n✅ Livraison rapide à Dakar\n${payLine}\n\n📩 Commande en DM — dëgër na ! 👇${tags}`;
+  if (platform === "whatsapp")  return `${e} Salut ! Tu as vu *${titre}* ?\n\nVoilà ce qu'il faut savoir :\n\n• ${brief}\n• Livraison à Dakar sous 24h\n• ${payment} disponible\n• Stock limité — commande maintenant !\n\n📲 Réponds à ce message pour commander. C'est paré !`;
+  if (platform === "tiktok")    return `⚡ POV : tu scrolles et tu tombes sur *${titre}*\n\n${brief.slice(0, 80)}\n\n🎬 Dakar vibes only — c'est chaud !\n\n${payLine}\n📩 Lien en bio ou DM direct${tags}`;
+  if (platform === "snapchat")  return `${e} *${titre}* — Dakar klasse ultime !\n${brief.slice(0, 70)}…\n\n💨 Stock limité. Swipe up ou DM ! 👆${tags}`;
+  return `${e} *${titre}*\n\n${brief}\n\n${payLine}\n📩 Commande en DM !`;
+}
 
-  if (langue === "anglais") {
-    const hooks: Record<string, string> = {
-      professionnel: `Are you still sleeping on *${titre}*? Dakar's most elegant women aren't. ✨\nThis is your sign — klasse doesn't wait.`,
-      amical:        `Hey love 😊 — *${titre}* just landed and it's giving TOP TOP!\nYour next favourite piece is right here.`,
-      enthousiaste:  `🔥 NO CAP — *${titre}* is the one everyone's been asking about!!\nDakar vibes, global standards.`,
-      luxueux:       `👑 Some things are made for those who know their worth.\n*${titre}* — luxury, redefined for the Dakar woman.`,
-    };
-    return `${hooks[ton] ?? hooks.professionnel}\n\n✨ ${brief}\n\n${
-      isTikTok ? "⚡ Trending hard on TikTok SN — don't miss out!" :
-      isIG     ? "📸 Made for your feed. Made for Dakar." :
-      isWA     ? "📲 Share with your crew — this one's too good to keep!" : ""
-    }\n\n✅ Fast delivery across Dakar\n✅ 100% authentic quality\n✅ Easy payment via ${payment}\n\n📩 DM us or drop a comment — order now! 👇${hashtags}`;
-  }
-
-  const hooks: Record<string, string> = {
-    professionnel: `Tu cherches l'élégance qui parle avant même que tu ouvres la bouche ? ✨\n*${titre}* — le style dakarois dans toute sa splendeur.`,
-    amical:        `Eh toi ! 😊 T'as vu *${titre}* ? C'est chaud, paré — exactement ce qu'il te fallait !\nOn t'attendait.`,
-    enthousiaste:  `🔥 ALERTE KLASSE ! *${titre}* vient d'arriver et ça va tout changer !!\nDakar, vous êtes paré ?`,
-    luxueux:       `👑 Le luxe n'est plus un rêve.\n*${titre}* — pour celles qui savent ce qu'elles valent.`,
-  };
-
-  return `${hooks[ton] ?? hooks.professionnel}\n\n✨ ${brief}\n\n${
-    isTikTok ? "⚡ Le buzz sur TikTok SN — arrête ton scroll !" :
-    isIG     ? "📸 L'élégance dakaroise dans chaque détail — parfait pour ton feed." :
-    isWA     ? "📲 Partage avec tes amies — cette offre est trop bonne pour la garder !" : ""
-  }\n\n✅ Livraison rapide à Dakar\n✅ Qualité 100% authentique\n✅ Paiement facile via ${payment}\n\n📩 Commande maintenant ou écris-nous en DM — dëgër na ! 👇${hashtags}`;
+function mockCopies(input: GenerateInput): Record<string, string> {
+  const { titre, brief, plateformes, ton, paymentMethod } = input;
+  const result: Record<string, string> = {};
+  for (const p of plateformes) result[p] = mockOnePlatform(titre, brief, p, ton, paymentMethod);
+  return result;
 }
 
 export interface GenerateInput {
@@ -100,7 +70,6 @@ export interface GenerateInput {
   paymentMethod: string;
 }
 
-// Named error codes surfaced to callers for user-friendly messages
 export class GenerateError extends Error {
   constructor(
     public readonly code: "QUOTA_EXCEEDED" | "INVALID_API_KEY" | "TIMEOUT" | "API_ERROR",
@@ -111,74 +80,75 @@ export class GenerateError extends Error {
   }
 }
 
-export async function generateCopy(input: GenerateInput, apiKey: string): Promise<string> {
+export async function generateCopy(input: GenerateInput, apiKey: string): Promise<Record<string, string>> {
   const { titre, brief, plateformes, ton, langue, paymentMethod } = input;
 
-  // Dev/demo mode: no valid key → return rich mock instantly
   if (!apiKey || apiKey.length < 20) {
     await new Promise((r) => setTimeout(r, 800));
-    return mockCopy(titre, brief, plateformes, ton, langue, paymentMethod);
+    return mockCopies(input);
   }
 
-  const client = new OpenAI({
-    apiKey,
-    timeout: 30_000,
-    maxRetries: 1,
-  });
+  const client = new OpenAI({ apiKey, timeout: 30_000, maxRetries: 1 });
 
-  const platformNames = plateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
   const payment       = PAYMENT_LABELS[paymentMethod] ?? paymentMethod;
+  const platformKeys  = plateformes.join(", ");
+  const platformNames = plateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
 
-  const platformContext = plateformes.includes("tiktok") || plateformes.includes("instagram")
-    ? "TikTok/Instagram (le HOOK doit arrêter le scroll en moins de 2 secondes)"
-    : plateformes.includes("whatsapp")
-      ? "WhatsApp (ton conversationnel, urgence immédiate)"
-      : "Snapchat (court, visuel, percutant)";
+  const platformRules = [
+    plateformes.includes("instagram") ? "- instagram : Texte visuel lifestyle, hook 2 lignes max qui arrête le scroll, corps avec émojis et listes, bloc hashtags Dakar en fin de texte." : "",
+    plateformes.includes("whatsapp")  ? "- whatsapp : Texte direct et aéré, listes à puces claires, CTA explicite vers DM ou catalogue, ton conversationnel et chaleureux." : "",
+    plateformes.includes("tiktok")    ? "- tiktok : Accroche ultra-courte style POV ou mini-script vidéo dynamique (3-4 lignes), énergie maximale, hashtags TikTok SN." : "",
+    plateformes.includes("snapchat")  ? "- snapchat : Texte très court et punchy (2-3 lignes max), visuel, avec appel à l'action swipe up ou DM." : "",
+  ].filter(Boolean).join("\n");
 
   try {
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `Tu es un copywriter expert du e-commerce et du commerce social sénégalais, spécialisé dans la vente de mode et de beauté sur les réseaux sociaux dakarois pour la marque Sagnsé.
-Chaque copie que tu génères est UNIQUE — structure de phrase, vocabulaire et accroche différents à chaque fois.
-Tu suis IMPÉRATIVEMENT cette structure en 3 blocs :
+          content: `Tu es un copywriter expert du e-commerce et du commerce social sénégalais pour la marque Sagnsé.
+Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces clés : ${platformKeys}.
+Chaque valeur est une copie de vente UNIQUE et ultra-spécifique, optimisée pour la plateforme correspondante.
 
-**BLOC 1 — LE HOOK (2 lignes max)**
-Lance une punchline percutante, une question provocatrice OU une urgence culturelle sénégalaise (Tabaski, Gamou, Korité, sagnssé dëgg, mariages, tenue de fête).
-Le but : arrêter net le scroll sur ${platformContext}.
+Règles par plateforme :
+${platformRules}
 
-**BLOC 2 — LE CORPS**
-Transforme le brief produit en bénéfices clients irrésistibles.
-Utilise des émojis pertinents, des listes à puces aérées, des formulations qui parlent à la femme dakaroise moderne.
-
-**BLOC 3 — L'APPEL À L'ACTION (CTA)**
-Incitation claire et urgente à commander maintenant via DM ou WhatsApp. Mentionne le moyen de paiement disponible.
-Termine par les hashtags adaptés à la plateforme.
-
+Chaque copie suit la structure : HOOK → CORPS → CTA.
 ${LANG_MAP[langue] ?? LANG_MAP.francais}
-Réponds UNIQUEMENT avec la copie finale — zéro introduction, zéro commentaire, zéro titre de bloc.`,
+Ton : ${TON_MAP[ton] ?? TON_MAP.professionnel}
+
+Format de réponse JSON attendu :
+{ "instagram": "texte complet ici...", "whatsapp": "texte complet ici..." }`,
         },
         {
           role: "user",
           content: `Produit : ${titre}
 Brief : ${brief}
 Plateformes : ${platformNames}
-Ton : ${TON_MAP[ton] ?? TON_MAP.professionnel}
 Moyen de paiement : ${payment}
 
-Génère une copie de vente haute conversion pour ce produit. Commence directement par le HOOK.`,
+Génère le JSON avec une copie haute conversion et unique pour chaque plateforme.`,
         },
       ],
-      max_tokens: 600,
+      max_tokens: 1200,
       temperature: 0.9,
       presence_penalty: 0.6,
     });
 
-    return completion.choices[0]?.message?.content?.trim() ?? "";
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let copies: Record<string, string> = {};
+    try {
+      copies = JSON.parse(raw) as Record<string, string>;
+    } catch {
+      copies = { [plateformes[0]]: raw };
+    }
+    for (const p of plateformes) {
+      if (!copies[p]) copies[p] = Object.values(copies)[0] ?? "";
+    }
+    return copies;
   } catch (err: unknown) {
-    // Classify OpenAI SDK errors into actionable codes
     const status  = (err as { status?: number })?.status;
     const errName = err instanceof Error ? err.name : "";
 
