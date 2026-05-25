@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           currency:     "XOF",
           ref_command:  requestId,
           command_name: `Génération de copie de vente Sagnsé`,
-          env:          "prod",
+          env:          process.env.PAYTECH_ENV ?? "test",
           success_url:  `${appUrl}/success?requestId=${requestId}`,
           cancel_url:   appUrl,
           ipn_url:      `${appUrl}/api/payment/notify`,
