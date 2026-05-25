@@ -33,9 +33,9 @@ function mockCopy(
   plateformes: string[],
   ton: string,
   langue: string,
-  paymentMethod: string
+  paymentMethod: string | null
 ): string {
-  const payment  = PAYMENT_LABELS[paymentMethod];
+  const payment  = paymentMethod ? (PAYMENT_LABELS[paymentMethod] ?? "") : "";
   const hashtags = platformHashtags(plateformes);
   const isIG     = plateformes.includes("instagram");
   const isTikTok = plateformes.includes("tiktok");
@@ -63,7 +63,7 @@ ${isTikTok ? "⚡ TikTok SN dafa ko xam — scroll bul dem!" : isIG ? "📸 Feed
 
 ✅ Yomb lañ ko jënd
 ✅ Livraison ci Dakar
-✅ Jënd ci ${payment} — gaaw te yomb!
+✅ ${payment ? `Jënd ci ${payment} — gaaw te yomb!` : "Jënd yomb — gaaw!"}
 
 📩 Bindal sa yëgël ci comment walla DM bu kanam! 👇${hashtags}`;
   }
@@ -78,7 +78,7 @@ ${isTikTok ? "⚡ TikTok SN heɓii — janngo waawaa!" : isIG ? "📸 Fello ngal
 
 ✅ Heɓirde wellaandi
 ✅ Livraison Dakar
-✅ Jom ${payment} — yaawnude e laabi!
+✅ ${payment ? `Jom ${payment} — yaawnude e laabi!` : "Heɓirde laawol yoowndi!"}
 
 📩 Neldaa haala maa to comment walla DM! 👇${hashtags}`;
   }
@@ -93,7 +93,7 @@ ${isTikTok ? "⚡ TikTok SN a ko xam — jangaat o ndaw!" : isIG ? "📸 Style D
 
 ✅ A xam na ko dëkk
 ✅ Livraison Dakar
-✅ Faj ci ${payment} — gaaw te yomb!
+✅ ${payment ? `Faj ci ${payment} — gaaw te yomb!` : "Faj yomb — gaaw!"}
 
 📩 A bind soxna ci comment walla DM! 👇${hashtags}`;
   }
@@ -113,7 +113,7 @@ ${isTikTok ? "⚡ Trending hard on TikTok SN — don't miss out!" : isIG ? "📸
 
 ✅ Fast delivery across Dakar
 ✅ 100% authentic quality
-✅ Easy payment via ${payment}
+✅ ${payment ? `Easy payment via ${payment}` : "Easy & fast payment"}
 
 📩 DM us or drop a comment — order now! 👇${hashtags}`;
   }
@@ -134,7 +134,7 @@ ${isTikTok ? "⚡ Le buzz sur TikTok SN — arrête ton scroll !" : isIG ? "📸
 
 ✅ Livraison rapide à Dakar
 ✅ Qualité 100% authentique
-✅ Paiement facile via ${payment}
+✅ ${payment ? `Paiement facile via ${payment}` : "Paiement simple et rapide"}
 
 📩 Commande maintenant ou écris-nous en DM — dëgër na ! 👇${hashtags}`;
 }
@@ -196,22 +196,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validate enum fields
-  if (!paymentMethod || !VALID_PAYMENTS.has(paymentMethod)) {
-    return NextResponse.json(
-      { error: "Moyen de paiement invalide ou manquant." },
-      { status: 400 }
-    );
-  }
-  const safeTon    = VALID_TONES.has(ton ?? "")    ? ton!    : "professionnel";
-  const safeLangue = VALID_LANGUAGES.has(langue ?? "") ? langue! : "francais";
+  const safeTon      = VALID_TONES.has(ton ?? "")          ? ton!          : "professionnel";
+  const safeLangue   = VALID_LANGUAGES.has(langue ?? "")   ? langue!       : "francais";
+  const safePayment  = paymentMethod && VALID_PAYMENTS.has(paymentMethod) ? paymentMethod : null;
 
   // Use mock when no valid OpenAI key is configured
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey || apiKey.length < 20) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return NextResponse.json({
-      copy: mockCopy(titre, brief, safePlateformes, safeTon, safeLangue, paymentMethod),
+      copy: mockCopy(titre, brief, safePlateformes, safeTon, safeLangue, safePayment),
     });
   }
 
@@ -219,7 +213,7 @@ export async function POST(req: NextRequest) {
   const client = new OpenAI({ apiKey });
 
   const platformNames = safePlateformes.map((p) => PLATFORM_LABELS[p] ?? p).join(", ");
-  const payment = PAYMENT_LABELS[paymentMethod];
+  const payment = safePayment ? (PAYMENT_LABELS[safePayment] ?? "") : null;
 
   const langMap: Record<string, string> = {
     francais: "Rédige entièrement en français. Glisse naturellement une ou deux expressions locales imagées parmi : « Klasse », « c'est chaud », « paré », « dëgër na », « trop bien ça ».",
@@ -273,7 +267,7 @@ Réponds UNIQUEMENT avec la copie finale — zéro introduction, zéro commentai
 Brief : ${brief}
 Plateformes : ${platformNames}
 Ton : ${tonMap[safeTon]}
-Moyen de paiement : ${payment}
+${payment ? `Moyen de paiement : ${payment}` : ""}
 
 Génère une copie de vente haute conversion pour ce produit. Commence directement par le HOOK.`,
         },
