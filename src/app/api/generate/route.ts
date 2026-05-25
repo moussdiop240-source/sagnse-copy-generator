@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { getTrialCount, incrementTrialCount, FREE_LIMIT_SERVER } from "@/lib/store";
+import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER } from "@/lib/store";
+import { randomUUID } from "crypto";
 
 const VALID_PLATFORMS = new Set(["instagram", "snapchat", "whatsapp", "tiktok"]);
 const VALID_TONES     = new Set(["professionnel", "amical", "enthousiaste", "luxueux"]);
@@ -119,14 +120,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ copies: mockCopies(titre, brief, safePlateformes, safeTon, safeLangue, safePayment) });
   }
 
-  // Server-side free trial enforcement (bypasses localStorage manipulation)
-  const ip         = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const trialCount = await getTrialCount(ip);
+  // Server-side free trial enforcement — IP + browser cookie (both must be bypassed)
+  const ip        = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const uid       = req.cookies.get("sagnse_uid")?.value || randomUUID();
+  const trialCount = await getEffectiveTrialCount(ip, uid);
   if (trialCount >= FREE_LIMIT_SERVER) {
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "Limite gratuite atteinte. Veuillez passer au paiement.", limitReached: true },
       { status: 403 }
     );
+    res.cookies.set("sagnse_uid", uid, { maxAge: 31_536_000, httpOnly: true, sameSite: "strict", path: "/", secure: true });
+    return res;
   }
 
   const client        = new OpenAI({ apiKey });
@@ -221,8 +225,10 @@ Génère le JSON. Chaque copie doit être intégralement en ${langNameMap[safeLa
       if (!copies[p]) copies[p] = Object.values(copies)[0] ?? "";
     }
 
-    await incrementTrialCount(ip);
-    return NextResponse.json({ copies });
+    await incrementBothTrialCounts(ip, uid);
+    const res = NextResponse.json({ copies });
+    res.cookies.set("sagnse_uid", uid, { maxAge: 31_536_000, httpOnly: true, sameSite: "strict", path: "/", secure: true });
+    return res;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur inconnue";
     console.error("[/api/generate] OpenAI error:", message);

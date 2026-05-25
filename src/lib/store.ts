@@ -91,21 +91,50 @@ export async function getResult(id: string): Promise<CompletedResult | null> {
   return memResults.get(id) ?? null;
 }
 
-// ── Free trial tracking by IP ────────────────────────────────────────────────
+// ── Free trial tracking (IP and browser UID cookie) ─────────────────────────
+// Both are checked: user must bypass ALL layers to get extra free trials.
+
+async function _getCount(key: string): Promise<number> {
+  const r = getRedis();
+  if (!r) return 0;
+  return (await r.get<number>(key)) ?? 0;
+}
+
+async function _increment(key: string): Promise<void> {
+  const r = getRedis();
+  if (!r) return;
+  const n = await r.incr(key);
+  if (n === 1) await r.expire(key, TRIAL_TTL);
+}
 
 export async function getTrialCount(ip: string): Promise<number> {
-  const r = getRedis();
-  if (!r) return 0; // dev mode: no Redis → unlimited
-  const count = await r.get<number>(`trials:${ip}`);
-  return count ?? 0;
+  return _getCount(`trials:${ip}`);
 }
 
 export async function incrementTrialCount(ip: string): Promise<void> {
-  const r = getRedis();
-  if (!r) return;
-  const key   = `trials:${ip}`;
-  const count = await r.incr(key);
-  if (count === 1) await r.expire(key, TRIAL_TTL);
+  return _increment(`trials:${ip}`);
+}
+
+export async function getTrialCountByUid(uid: string): Promise<number> {
+  return _getCount(`trials:uid:${uid}`);
+}
+
+export async function incrementTrialCountByUid(uid: string): Promise<void> {
+  return _increment(`trials:uid:${uid}`);
+}
+
+/** Returns the effective trial count — the higher of IP and UID counts. */
+export async function getEffectiveTrialCount(ip: string, uid: string): Promise<number> {
+  const [ipCount, uidCount] = await Promise.all([
+    getTrialCount(ip),
+    getTrialCountByUid(uid),
+  ]);
+  return Math.max(ipCount, uidCount);
+}
+
+/** Increments both IP and UID counters atomically. */
+export async function incrementBothTrialCounts(ip: string, uid: string): Promise<void> {
+  await Promise.all([incrementTrialCount(ip), incrementTrialCountByUid(uid)]);
 }
 
 // ── Payment confirmed but generation still pending ───────────────────────────

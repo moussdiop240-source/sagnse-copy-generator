@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   const redis = new Redis({ url, token });
 
-  // Scan and delete all trials:* keys
+  // Scan and delete all trials:* keys (covers both IP and UID entries)
   let cursor = 0;
   let deleted = 0;
   do {
