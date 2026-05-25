@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
   const safeTon    = VALID_TONES.has(ton ?? "")        ? ton!    : "professionnel";
   const safeLangue = VALID_LANGUAGES.has(langue ?? "") ? langue! : "francais";
 
+  // Detect likely operator from Senegalese prefix for channel hint to PayDunya
+  // 77, 78 → Sonatel/Orange (Orange Money or Wave)
+  // 70, 75, 76 → Free Senegal (Free Money or Wave)
+  const prefix = cleaned.slice(0, 2);
+  const channel = (prefix === "77" || prefix === "78") ? "orange-money" : "wave";
+
   const requestId = randomUUID();
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const price     = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
@@ -101,23 +107,25 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           invoice: {
-            total_amount: price,
-            description:  `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
+            total_amount:   price,
+            description:    `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
+            payment_method: channel,   // hint PayDunya to pre-select channel
           },
           store: {
             name:        "Sagnsé",
             website_url: appUrl,
           },
           actions: {
-            cancel_url: appUrl,
-            return_url: `${appUrl}/success?requestId=${requestId}`,
+            cancel_url:     appUrl,
+            return_url:     `${appUrl}/success?requestId=${requestId}`,
+            payment_method: channel,   // some PayDunya versions read this in actions
           },
-          // Pre-fill customer phone on PayDunya checkout page
+          // Pre-fill customer phone so PayDunya can skip manual entry
           customer: {
             name:  "Client Sagnsé",
             phone: `221${cleaned}`,
           },
-          custom_data: { request_id: requestId },
+          custom_data: { request_id: requestId, channel },
         }),
       },
       10_000
@@ -130,7 +138,9 @@ export async function POST(req: NextRequest) {
       token?:         string;
     };
 
-    const checkoutUrl = result.response_code === "00" ? result.response_text : undefined;
+    // Append channel hint to checkout URL so PayDunya can pre-select payment method
+    const rawUrl      = result.response_code === "00" ? result.response_text : undefined;
+    const checkoutUrl = rawUrl ? `${rawUrl}?channel=${channel}&phone=221${cleaned}` : undefined;
 
     if (!checkoutUrl) {
       return NextResponse.json(

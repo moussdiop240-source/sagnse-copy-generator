@@ -186,8 +186,8 @@ export default function Home() {
                 Limite de {FREE_LIMIT} copies gratuites atteinte.
               </p>
               <p className="text-xs text-violet-600">
-                Remplissez le formulaire et cliquez sur{" "}
-                <strong>Payer &amp; Générer</strong> pour débloquer votre copie via Wave ou Orange Money.
+                Saisissez votre numéro Wave ou Orange Money ci-dessous, puis cliquez sur{" "}
+                <strong>Payer &amp; Générer</strong>. Vous serez redirigé vers PayDunya pour confirmer le paiement de <strong>500 FCFA</strong>.
               </p>
             </div>
           )}
@@ -308,7 +308,7 @@ export default function Home() {
                     </span>
                   </div>
                   <p className="text-xs text-gray-400">
-                    Saisissez votre numéro mobile. PayDunya le pré-remplira automatiquement sur la page de paiement.
+                    Numéro Wave ou Orange Money (9 chiffres). PayDunya pré-sélectionnera le canal de paiement.
                   </p>
                   <div className="flex items-center gap-2 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent transition">
                     <span className="text-sm text-gray-500 font-medium select-none whitespace-nowrap">🇸🇳 +221</span>
