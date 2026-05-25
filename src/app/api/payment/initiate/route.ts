@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
   const requestId = randomUUID();
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const price     = parseInt(process.env.SAGNSE_PRICE_XOF ?? "500", 10);
-  const masterKey = process.env.PAYDUNYA_MASTER_KEY ?? "";
+  const apiKey    = process.env.PAYTECH_API_KEY ?? "";
+  const apiSecret = process.env.PAYTECH_API_SECRET ?? "";
 
   const formData = {
     titre:         titre.trim(),
@@ -60,72 +61,62 @@ export async function POST(req: NextRequest) {
     ton:           safeTon,
     langue:        safeLangue,
     paymentMethod: "mobile",
+    paytechToken:  "",
     createdAt:     Date.now(),
   };
 
-  // Dev mode: no PayDunya keys → skip checkout, go straight to /success
-  if (!masterKey) {
-    await storePending(requestId, { ...formData, paydunyaToken: "" });
+  // Dev mode: no PayTech keys → skip payment, go straight to /success
+  if (!apiKey) {
+    await storePending(requestId, formData);
     return NextResponse.json({
       checkoutUrl: `${appUrl}/success?requestId=${requestId}`,
     });
   }
 
-  const privateKey = process.env.PAYDUNYA_PRIVATE_KEY ?? "";
-  const apiToken   = process.env.PAYDUNYA_TOKEN ?? "";
-  const mode       = process.env.PAYDUNYA_MODE ?? "sandbox";
-  const baseUrl    = mode === "live"
-    ? "https://app.paydunya.com/api/v1"
-    : "https://app.paydunya.com/sandbox-api/v1";
-
   try {
-    const paydunyaRes = await fetchWithTimeout(
-      `${baseUrl}/checkout-invoice/create`,
+    const paytechRes = await fetchWithTimeout(
+      "https://paytech.sn/api/payment/request-payment",
       {
         method: "POST",
         headers: {
-          "Content-Type":         "application/json",
-          "PAYDUNYA-MASTER-KEY":  masterKey,
-          "PAYDUNYA-PRIVATE-KEY": privateKey,
-          "PAYDUNYA-TOKEN":       apiToken,
+          "Content-Type": "application/json",
+          "API_KEY":       apiKey,
+          "API_SECRET":    apiSecret,
         },
         body: JSON.stringify({
-          invoice: {
-            total_amount: price,
-            description:  `Copie de vente Sagnsé — ${titre.trim().slice(0, 80)}`,
-          },
-          store: {
-            name:        "Sagnsé",
-            website_url: appUrl,
-          },
-          actions: {
-            cancel_url:  appUrl,
-            return_url:  `${appUrl}/success?requestId=${requestId}`,
-          },
-          custom_data: { request_id: requestId },
+          item_name:    `Sagnsé — ${titre.trim().slice(0, 80)}`,
+          item_price:   price,
+          currency:     "XOF",
+          ref_command:  requestId,
+          command_name: `Génération de copie de vente Sagnsé`,
+          env:          "prod",
+          success_url:  `${appUrl}/success?requestId=${requestId}`,
+          cancel_url:   appUrl,
+          ipn_url:      `${appUrl}/api/payment/notify`,
+          custom_field: JSON.stringify({ request_id: requestId }),
         }),
       },
-      10_000
+      12_000
     );
 
-    const result = await paydunyaRes.json() as {
-      response_code?: string;
-      response_text?: string;
-      description?:   string;
-      token?:         string;
+    const result = await paytechRes.json() as {
+      success?:      number;
+      token?:        string;
+      redirect_url?: string;
+      redirectUrl?:  string;
     };
 
-    const rawUrl      = result.response_code === "00" ? result.response_text : undefined;
-    const checkoutUrl = rawUrl ?? undefined;
+    const checkoutUrl = result.redirect_url ?? result.redirectUrl;
 
-    if (!checkoutUrl) {
+    if (result.success !== 1 || !checkoutUrl) {
+      console.error("[/api/payment/initiate] PayTech error:", result);
       return NextResponse.json(
-        { error: result.description ?? "Erreur de création de facture PayDunya." },
+        { error: "Erreur lors de la création du paiement. Réessayez." },
         { status: 502 }
       );
     }
 
-    await storePending(requestId, { ...formData, paydunyaToken: result.token ?? "" });
+    await storePending(requestId, { ...formData, paytechToken: result.token ?? "" });
     return NextResponse.json({ checkoutUrl });
 
   } catch (err) {
@@ -135,7 +126,7 @@ export async function POST(req: NextRequest) {
         { status: 504 }
       );
     }
-    console.error("[/api/payment/initiate] PayDunya error:", err);
+    console.error("[/api/payment/initiate] PayTech error:", err);
     return NextResponse.json(
       { error: "Erreur lors de l'initiation du paiement. Réessayez." },
       { status: 502 }

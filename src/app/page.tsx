@@ -76,7 +76,7 @@ export default function Home() {
     }
     setError("");
 
-    // ── PAID FLOW: limit reached → initiate PayDunya payment ──
+    // ── PAID FLOW: limit reached → initiate PayTech payment ──
     if (limitReached) {
       setInitiating(true);
       try {
