@@ -75,11 +75,11 @@ export async function deletePending(id: string): Promise<void> {
   }
 }
 
-export async function storeResult(id: string, copy: string): Promise<void> {
+export async function storeResult(id: string, copy: string, ttl = RESULT_TTL): Promise<void> {
   const r = getRedis();
   const data: CompletedResult = { copy, createdAt: Date.now() };
   if (r) {
-    await r.set(`res:${id}`, data, { ex: RESULT_TTL });
+    await r.set(`res:${id}`, data, { ex: ttl });
   } else {
     memResults.set(id, data);
   }

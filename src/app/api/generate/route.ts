@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER, checkRateLimit } from "@/lib/store";
+import { getEffectiveTrialCount, incrementBothTrialCounts, FREE_LIMIT_SERVER, checkRateLimit, getResult, storeResult } from "@/lib/store";
 import { generateCopy } from "@/lib/generateCopy";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 
 const VALID_PLATFORMS = new Set(["instagram", "snapchat", "whatsapp", "tiktok"]);
 const VALID_TONES     = new Set(["professionnel", "amical", "enthousiaste", "luxueux"]);
@@ -70,6 +70,23 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.OPENAI_API_KEY ?? "";
 
+  // Cache key — identical inputs always return the same copy, zero OpenAI cost
+  const cacheKey = `freetrial:${createHash("md5")
+    .update([titre.trim(), brief.trim(), [...safePlateformes].sort().join(","), safeTon, safeLangue, safePayment ?? ""].join("|"))
+    .digest("hex")}`;
+
+  // Return cached result if available (still counts as a trial use)
+  try {
+    const cached = await getResult(cacheKey);
+    if (cached) {
+      const copies = JSON.parse(cached.copy) as Record<string, string>;
+      await incrementBothTrialCounts(ip, uid);
+      const res = NextResponse.json({ copies });
+      res.cookies.set("sagnse_uid", uid, { maxAge: 31_536_000, httpOnly: true, sameSite: "strict", path: "/", secure: true });
+      return res;
+    }
+  } catch { /* cache miss — proceed to generate */ }
+
   try {
     const copies = await generateCopy({
       titre:         titre.trim(),
@@ -79,6 +96,9 @@ export async function POST(req: NextRequest) {
       langue:        safeLangue,
       paymentMethod: safePayment ?? "mobile",
     }, apiKey);
+
+    // Cache result for 1 hour — identical requests skip OpenAI entirely
+    await storeResult(cacheKey, JSON.stringify(copies), 3600).catch(() => {});
 
     await incrementBothTrialCounts(ip, uid);
     const res = NextResponse.json({ copies });

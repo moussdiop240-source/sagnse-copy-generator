@@ -196,9 +196,9 @@ ${langue !== "francais" ? `\n⚠️ IMPORTANT : Traduis le brief ci-dessus dans 
 Génère le JSON. Hook = affirmation percutante (jamais une question). Corps aéré avec émojis. CTA clair par plateforme.`,
         },
       ],
-      max_tokens: 1600,
-      temperature: 0.92,
-      presence_penalty: 0.7,
+      max_tokens: Math.min(400 * plateformes.length + 200, 1600),
+      temperature: 0.78,
+      presence_penalty: 0.5,
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
