@@ -17,7 +17,7 @@ const LANG_MAP: Record<string, string> = {
   wolof:    "⚠️ WOLOF REKK — Bind ci WOLOF YÉP. Dara ci français dëkk du sore. Jëfandikoo: « Sagnssé dëgg », « Gawa lool », « Paré nga », « Dëgër na », « Dafa neex », « Jënd léegi », « Tàmm bëgg na dem », « Xam nga loolu ? », « Deuredj li », « Gaaw lool », « Xóol ! », « Ak jaay », « Jëkk na ». CTA WhatsApp → « 📲 Bindal ma wax — gaaw ! » CTA Snapchat → « Swipe up 👆 wala DM kanam ! » CTA Instagram → « 📩 DM kanam wala lien ci bio 👇 »",
   anglais:  "Write entirely in English. Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\", \"sagnsé dëgg\".",
   puular:   "⚠️ PULAAR REKK — Siftina PULAAR timmungal. Haala PULAAR e dente fof. Ɗum woni tiinde — tagi français walla wolof. Jëfandikoo : « Mboddi », « Jaraama », « Ko woni », « Waawnude », « Mo weli », « Ndeke », « Nguurndam », « Yeeso », « Fiɗtude », « Ƴamde ». CTA WhatsApp → « Ndar miin, min njahata yeeso ! » CTA Snapchat → « Yiyto kadi — ndar miin ! » CTA Instagram → « Ndar DM maa walla yiyto liɗɗi bio 👇 »",
-  serere:   "Rédige en FRANÇAIS avec âme sérère. Intègre : « Nan nga def », « Jàmm rekk », « Mbegaan », « Dii jàmm », « Roog laa naan », références Sine-Saloum. CTA WhatsApp → « 📲 Réponds ici — Jàmm rekk, on s'occupe de toi ! » CTA Snapchat → « Swipe up 👆 ou DM — Dii jàmm ! » CTA Instagram → « 📩 Commande en DM ou lien en bio 👇 »",
+  serere:   "Rédige en FRANÇAIS avec âme sérère. Intègre : « Nan nga def », « Jàmm rekk », « Mbegaan », « Dii jàmm », « Roog laa naan », références Sine-Saloum. ❌ N'utilise JAMAIS les CTAs wolof : 'Bindal ma wax', 'wala DM kanam', 'gaaw', 'Swipe up wala'. CTA WhatsApp → « 📲 Réponds ici — Jàmm rekk, on s'occupe de toi ! » CTA Snapchat → « Swipe up 👆 ou DM — Dii jàmm ! » CTA Instagram → « 📩 Commande en DM ou lien en bio 👇 »",
 };
 
 const LANG_EXAMPLE: Record<string, string> = {
@@ -140,11 +140,12 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
   WhatsApp  → "📲 Ndar miin, min njahata yeeso !"
   TikTok    → CTA e pulaar e nder audio + hashtags
   Snapchat  → "Yiyto kadi — ndar miin !"`,
-    serere: `CTA :
+    serere: `CTA SÉRÈRE OBLIGATOIRE — copie exactement ces phrases, rien d'autre :
   Instagram → "📩 Commande en DM ou lien en bio 👇" + hashtags
   WhatsApp  → "📲 Réponds ici — Jàmm rekk, on s'occupe de toi !"
-  TikTok    → CTA dans l'audio + hashtags
-  Snapchat  → "Swipe up 👆 ou DM — Dii jàmm !"`,
+  TikTok    → CTA dans l'audio + hashtags sérère
+  Snapchat  → "Swipe up 👆 ou DM — Dii jàmm !"
+❌ INTERDIT pour Sérère : "Bindal ma wax", "wala DM kanam", "Swipe up wala", "gaaw !", "Bindal" — ce sont des CTAs WOLOF, pas sérère.`,
   };
 
   const platformRules = [
