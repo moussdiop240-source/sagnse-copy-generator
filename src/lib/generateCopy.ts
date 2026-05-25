@@ -13,11 +13,32 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 const LANG_MAP: Record<string, string> = {
-  francais: "Rédige en français avec une âme dakaroise. Injecte naturellement des expressions sénégalaises imagées : « Klasse », « c'est chaud », « paré nga », « dëgër na », « gawa lool », « Wawaw », « Neexna », « Xessal ». Mélange l'élégance du français et l'authenticité culturelle de Dakar.",
-  wolof:    "Rédige entièrement en wolof authentique. Utilise des expressions percutantes : « deuredj li », « gawa lool », « paré nga », « sagnssé dëgg », « xam nga », « dafa neex ».",
-  anglais:  "Write entirely in English with bold Senegalese Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\", \"sagnsé dëgg\".",
-  puular:   "Rédige entièrement en pulaar/fuula. Utilise des expressions authentiques : « mboddi », « jaraama », « ko woni », « waawnude », « mo weli ».",
-  serere:   "Rédige entièrement en sérère avec des expressions et tournures de phrases authentiques sérères.",
+  francais: "Rédige en français dakarois. Injecte : « Klasse », « c'est chaud », « paré nga », « dëgër na », « gawa lool ».",
+  wolof:    "⚠️ WOLOF REKK — Bind ci WOLOF YÉP. Dara ci français dëkk du sore. Jëfandikoo: « Sagnssé dëgg », « Gawa lool », « Paré nga », « Dëgër na », « Dafa neex », « Jënd léegi », « Tàmm bëgg na dem », « Xam nga loolu ? », « Deuredj li », « Gaaw lool », « Xóol ! », « Ak jaay », « Jëkk na ».",
+  anglais:  "Write entirely in English. Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\", \"sagnsé dëgg\".",
+  puular:   "⚠️ PULAAR REKK — Siftina PULAAR timmungal. Haala PULAAR e dente fof. Ɗum woni tiinde — tagi français walla wolof. Jëfandikoo : « Mboddi », « Jaraama », « Ko woni », « Waawnude », « Mo weli », « Ndeke », « Nguurndam », « Yeeso », « Fiɗtude », « Ƴamde ». CTA WhatsApp → « Ndar miin, min njahata yeeso ! » CTA Snapchat → « Yiyto kadi — ndar miin ! » CTA Instagram → « Ndar DM maa walla yiyto liɗɗi bio 👇 »",
+  serere:   "Rédige en FRANÇAIS avec âme sérère. Intègre : « Nan nga def », « Jàmm rekk », « Mbegaan », « Dii jàmm », « Roog laa naan », références Sine-Saloum.",
+};
+
+const LANG_EXAMPLE: Record<string, string> = {
+  francais: `{
+  "instagram": "🌹 L'élégance à la dakaroise — ce parfum, tout Dakar s'en souvient.\\n\\n✨ Sillage envoûtant 12h — dëgër na !\\n🌿 100% naturel, sans alcool\\n💎 Flacon luxueux, parfait comme cadeau\\n💰 3500 FCFA — klasse garantie\\n🚀 Livraison Dakar 24h\\n\\n📩 Commande en DM ou lien en bio 👇\\n#Dakar #Parfum",
+  "whatsapp": "🌹 *Rose des Sables — Parfum Premium*\\n\\n✨ Sillage 12h — neex na !\\n🌿 100% naturel\\n💰 Prix : 3500 FCFA\\n🚀 Livraison rapide. Stock limité !\\n\\n📲 Répondez à ce message pour commander maintenant !"
+}`,
+  wolof: `{
+  "instagram": "🍚 Thiébou djen bi dafa neex lool — Dakar dëkk yi xam na !\\n\\n🌶️ Poisson bi rafet na ak épices yi 100% naturel\\n⏱️ Jëkk na ci 30 minutes\\n👨‍👩‍👧‍👦 Ngir 4 nit — dëgër na !\\n💰 4500 FCFA — gawa lool, jënd léegi !\\n🚀 Livraison Dakar ci 1 heure\\n\\n📩 DM kanam wala lien ci bio 👇\\n#Dakar #Thiéboudiène #Sénégal",
+  "whatsapp": "🍚 *Thiéboudiène Royal — Ceeb ak jën premium* 🌶️\\n\\n🌿 Épices naturel 100% — sagnssé dëgg !\\n⏱️ Jëkk na ci 30 min ngir 4 nit\\n💰 Jënd : 4500 FCFA\\n🚀 Livraison Dakar ci 1h. Tàmm bëgg na dem !\\n\\n📲 Bindal ma wax — gaaw !"
+}`,
+  anglais: `{
+  "instagram": "🔥 Rose des Sables — Dakar's finest fragrance, no cap !\\n\\n✨ 12h sillage — it's giving luxury !\\n🌿 100% natural, no alcohol\\n💎 Perfect as a gift — klasse guaranteed\\n💰 3500 FCFA only\\n🚀 Dakar delivery in 24h\\n\\n📩 DM to order or link in bio 👇\\n#Dakar #Senegal #Perfume #DakarVibes",
+  "whatsapp": "🌹 *Rose des Sables — Premium Fragrance* ✨\\n\\n✨ 12h sillage — top top !\\n🌿 100% natural, no alcohol\\n💎 Great as a gift\\n💰 Price: 3500 FCFA\\n🚀 Fast delivery across Senegal. Limited stock!\\n\\n📲 Reply to this message to order now!",
+  "tiktok": "🎬 Visual: Close-up on the bottle, a touch on the wrist, big smile.\\n🎤 Audio/On-screen text: \\"Rose des Sables — it's giving Dakar klasse ! 12h fragrance, 100% natural, 3500 FCFA. Link in bio now!\\"\\n#TikTokSN #Perfume #DakarVibes",
+  "snapchat": "🌹 Rose des Sables — klasse ultime ! 12h fragrance, 3500 FCFA. Limited stock. Swipe up 👆 or DM direct !"
+}`,
+  puular: `{
+  "instagram": "🍚 Thiéboudiène Royal — ɗum ko nguurndam Dakar, mboddi !\\n\\n🌶️ Jën bi jaraama ak épices 100% gaa nii\\n⏱️ Waawnude e nder 30 miniti\\n👨‍👩‍👧‍👦 Ngir 4 neɗɗo — ko woni !\\n💰 4500 FCFA — fiɗtude laaɓi\\n🚀 Tiindol Dakar e nder 1 waktu\\n\\n📩 Ndar DM maa walla yiyto liɗɗi bio 👇\\n#Dakar #Senegaal #Thiéboudiène",
+  "whatsapp": "🍚 *Thiéboudiène Royal — Ceeb ak jën premium* 🌶️\\n\\n🌿 Épices gaa nii 100% — waawnude !\\n⏱️ Waawnude e nder 30 min ngir 4 neɗɗo\\n💰 Ƴamdu : 4500 FCFA\\n🚀 Tiindol Dakar e nder 1h. Yeeso, ndaar maɗɗen !\\n\\n📲 Ndar miin, min njahata yeeso !"
+}`,
 };
 
 const TON_MAP: Record<string, string> = {
@@ -103,30 +124,37 @@ export async function generateCopy(input: GenerateInput, apiKey: string): Promis
 
   try {
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `Tu es Sagnese AI, un copywriter d'élite spécialisé dans le e-commerce et le commerce social sénégalais à Dakar.
-Tu dois répondre UNIQUEMENT avec un objet JSON valide contenant exactement ces clés : ${platformKeys}.
-Chaque valeur est une copie de vente UNIQUE, haute conversion, culturellement authentique et optimisée pour sa plateforme.
-
-STRUCTURE OBLIGATOIRE pour chaque copie (respecter cet ordre) :
-1. LE HOOK — Les 2 premières lignes : punchline percutante selon le ton OU question provocatrice OU urgence culturelle sénégalaise (Tabaski, Gamou, Korité, sagnsé dëgg, rentrée scolaire) pour ARRÊTER instantanément le scroll mobile.
-2. LE CORPS — Transformer le brief en bénéfices clients irrésistibles. Aérer avec des émojis naturels et des listes à puces. Mentionner prix en FCFA si présent dans le brief, livraison rapide (Dakar, Thiès, Mbour, tout le Sénégal).
-3. L'APPEL À L'ACTION (CTA) — Incitation claire et directe à commander immédiatement via lien en bio, DM, ou message WhatsApp.
-
-RÈGLES STRICTES PAR PLATEFORME :
-${platformRules}
-
-VARIABILITÉ CULTURELLE OBLIGATOIRE :
-Injecte de façon fluide et naturelle des expressions urbaines locales imagées pour donner une âme unique à chaque texte.
-${LANG_MAP[langue] ?? LANG_MAP.francais}
+          content: `⚠️ LANGUE OBLIGATOIRE : ${(LANG_MAP[langue] ?? LANG_MAP.francais).replace("⚠️ ", "")}
 Ton : ${TON_MAP[ton] ?? TON_MAP.professionnel}
 
-Format de réponse JSON (exemple) :
-{ "instagram": "texte complet ici...", "whatsapp": "texte complet ici..." }`,
+Tu es Sagnese AI, copywriter d'élite du e-commerce sénégalais à Dakar.
+Réponds UNIQUEMENT avec un objet JSON valide contenant exactement ces clés : ${platformKeys}.
+
+⚠️ RÈGLE ABSOLUE — LE HOOK NE DOIT JAMAIS ÊTRE UNE QUESTION ⚠️
+La 1ère ligne = 1 affirmation percutante (jamais "?").
+❌ INTERDIT : "Prêt à ?", "Envie de ?", "Vous cherchez ?", "Tu veux ?"
+✅ OBLIGATOIRE : exclamation choc, révélation, urgence, affirmation forte.
+
+━━━ STRUCTURE OBLIGATOIRE ━━━
+
+HOOK : 1 seule ligne affirmative. Ligne vide après.
+CORPS : Bullets émojis variés (✅ 🌿 💡 🚀 💎 🎁). Prix FCFA. Livraison. Ligne vide après.
+CTA — adapte dans la langue choisie :
+  Instagram → DM ou lien bio + hashtags (ex: "📩 Commande en DM" / "Ndar DM maa" / "DM to order")
+  WhatsApp  → CTA direct dans la langue (ex: "Répondez à ce message" / "Bindal ma wax" / "Ndar miin, min njahata yeeso !" / "Reply to this message")
+  TikTok    → CTA dans l'audio dans la langue + hashtags
+  Snapchat  → Ultra-court dans la langue (ex: "Swipe up 👆" / "Yiyto kadi — ndar miin !" / "Swipe up or DM")
+
+━━━ RÈGLES PAR PLATEFORME ━━━
+${platformRules}
+
+EXEMPLE DE SORTIE PARFAITE :
+${LANG_EXAMPLE[langue] ?? LANG_EXAMPLE.francais}`,
         },
         {
           role: "user",
@@ -134,13 +162,14 @@ Format de réponse JSON (exemple) :
 Brief : ${brief}
 Plateformes : ${platformNames}
 Moyen de paiement : ${payment}
+${langue !== "francais" ? `\n⚠️ IMPORTANT : Traduis le brief ci-dessus dans la langue cible (${LANG_MAP[langue]?.split("—")[0]?.replace(/⚠️.*?:/,"").trim() ?? langue}) avant de rédiger. Le corps de la copie doit être entièrement dans cette langue, pas en français.` : ""}
 
-Génère le JSON avec une copie haute conversion et culturellement authentique pour chaque plateforme.`,
+Génère le JSON. Hook = affirmation percutante (jamais une question). Corps aéré avec émojis. CTA clair par plateforme.`,
         },
       ],
-      max_tokens: 1400,
-      temperature: 0.9,
-      presence_penalty: 0.6,
+      max_tokens: 1600,
+      temperature: 0.92,
+      presence_penalty: 0.7,
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
@@ -153,6 +182,26 @@ Génère le JSON avec une copie haute conversion et culturellement authentique p
     for (const p of plateformes) {
       if (!copies[p]) copies[p] = Object.values(copies)[0] ?? "";
     }
+
+    // Post-validate: if any hook (first line) is a question, replace it with a strong affirmation
+    const hookTemplates = [
+      `🔥 Alerte pépite — ${titre} va changer la donne !`,
+      `⚡ Dëgër na ! ${titre} — tout Dakar en parle déjà.`,
+      `✨ Sagnssé dëgg ! ${titre}, c'est klasse et c'est disponible maintenant.`,
+      `🌟 Stop au scroll — ${titre} est exactement ce que tu cherchais.`,
+    ];
+    let hookIdx = 0;
+    for (const p of plateformes) {
+      if (!copies[p]) continue;
+      const lines = copies[p].split("\n");
+      const firstLine = lines[0] ?? "";
+      if (firstLine.includes("?")) {
+        lines[0] = hookTemplates[hookIdx % hookTemplates.length];
+        hookIdx++;
+        copies[p] = lines.join("\n");
+      }
+    }
+
     return copies;
   } catch (err: unknown) {
     const status  = (err as { status?: number })?.status;
