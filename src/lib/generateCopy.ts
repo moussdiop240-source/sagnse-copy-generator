@@ -17,7 +17,7 @@ const LANG_MAP: Record<string, string> = {
   wolof:    "⚠️ WOLOF REKK — Bind ci WOLOF YÉP. Dara ci français dëkk du sore. Jëfandikoo: « Sagnssé dëgg », « Gawa lool », « Paré nga », « Dëgër na », « Dafa neex », « Jënd léegi », « Tàmm bëgg na dem », « Xam nga loolu ? », « Deuredj li », « Gaaw lool », « Xóol ! », « Ak jaay », « Jëkk na ».",
   anglais:  "Write entirely in English. Dakar energy: \"Dakar vibes\", \"klasse\", \"top top\", \"no cap\", \"it's giving\", \"sagnsé dëgg\".",
   puular:   "⚠️ PULAAR REKK — Siftina PULAAR timmungal. Haala PULAAR e dente fof. Ɗum woni tiinde — tagi français walla wolof. Jëfandikoo : « Mboddi », « Jaraama », « Ko woni », « Waawnude », « Mo weli », « Ndeke », « Nguurndam », « Yeeso », « Fiɗtude », « Ƴamde ». CTA WhatsApp → « Ndar miin, min njahata yeeso ! » CTA Snapchat → « Yiyto kadi — ndar miin ! » CTA Instagram → « Ndar DM maa walla yiyto liɗɗi bio 👇 »",
-  serere:   "Rédige en FRANÇAIS avec âme sérère. Intègre : « Nan nga def », « Jàmm rekk », « Mbegaan », « Dii jàmm », « Roog laa naan », références Sine-Saloum.",
+  serere:   "Rédige en FRANÇAIS avec âme sérère. Intègre : « Nan nga def », « Jàmm rekk », « Mbegaan », « Dii jàmm », « Roog laa naan », références Sine-Saloum. CTA WhatsApp → « 📲 Réponds ici — Jàmm rekk, on s'occupe de toi ! » CTA Snapchat → « Swipe up 👆 ou DM — Dii jàmm ! » CTA Instagram → « 📩 Commande en DM ou lien en bio 👇 »",
 };
 
 const LANG_EXAMPLE: Record<string, string> = {
@@ -38,6 +38,10 @@ const LANG_EXAMPLE: Record<string, string> = {
   puular: `{
   "instagram": "🍚 Thiéboudiène Royal — ɗum ko nguurndam Dakar, mboddi !\\n\\n🌶️ Jën bi jaraama ak épices 100% gaa nii\\n⏱️ Waawnude e nder 30 miniti\\n👨‍👩‍👧‍👦 Ngir 4 neɗɗo — ko woni !\\n💰 4500 FCFA — fiɗtude laaɓi\\n🚀 Tiindol Dakar e nder 1 waktu\\n\\n📩 Ndar DM maa walla yiyto liɗɗi bio 👇\\n#Dakar #Senegaal #Thiéboudiène",
   "whatsapp": "🍚 *Thiéboudiène Royal — Ceeb ak jën premium* 🌶️\\n\\n🌿 Épices gaa nii 100% — waawnude !\\n⏱️ Waawnude e nder 30 min ngir 4 neɗɗo\\n💰 Ƴamdu : 4500 FCFA\\n🚀 Tiindol Dakar e nder 1h. Yeeso, ndaar maɗɗen !\\n\\n📲 Ndar miin, min njahata yeeso !"
+}`,
+  serere: `{
+  "instagram": "🍛 Thiébou Dieune Royal — l'âme du Sine-Saloum dans ton assiette, Mbegaan !\\n\\n🌿 Roog laa naan — épices 100% naturelles du terroir\\n🐟 Poisson frais, qualité dëgër\\n💰 4500 FCFA — Dii jàmm la !\\n🚀 Livraison Dakar en 1h\\n\\n📩 Commande en DM ou lien en bio 👇\\n#Dakar #SineSaloum #Thiéboudienne #Sénégal",
+  "whatsapp": "🍛 *Thiébou Dieune Royal* 🌿\\n\\n🌶️ Épices Roog laa naan — goût authentique du Sine-Saloum\\n🐟 Poisson frais, fait maison — Jàmm rekk !\\n💰 Prix : 4500 FCFA\\n🚀 Livraison rapide Dakar 1h. Stock limité !\\n\\n📲 Réponds ici — Jàmm rekk, on s'occupe de toi !"
 }`,
 };
 
