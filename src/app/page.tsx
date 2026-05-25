@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const FREE_LIMIT  = 5;
 const STORAGE_KEY = "sagnse_gen_count";
@@ -52,6 +52,19 @@ export default function Home() {
     const stored = parseInt(localStorage.getItem(STORAGE_KEY) ?? "0", 10);
     return isNaN(stored) ? 0 : stored;
   });
+
+  // Sync with server on mount so admin resets are reflected immediately on refresh
+  useEffect(() => {
+    fetch("/api/trials/status")
+      .then((r) => r.json())
+      .then((data: { count?: number }) => {
+        if (typeof data.count === "number") {
+          setGenCount(data.count);
+          localStorage.setItem(STORAGE_KEY, String(data.count));
+        }
+      })
+      .catch(() => { /* keep localStorage value on network error */ });
+  }, []);
 
   const limitReached = genCount >= FREE_LIMIT;
   const remaining    = Math.max(0, FREE_LIMIT - genCount);
