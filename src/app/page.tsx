@@ -73,7 +73,7 @@ export default function Home() {
       setError("Veuillez sélectionner au moins une plateforme.");
       return;
     }
-    if (!paymentMethod) {
+    if (limitReached && !paymentMethod) {
       setError("Veuillez choisir un moyen de paiement pour continuer.");
       return;
     }
@@ -284,43 +284,45 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-gray-100 pt-1" />
-
-            {/* Paiement */}
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-gray-700">Moyen de paiement</p>
-              <p className="text-xs text-gray-400">
-                {limitReached
-                  ? "Sélectionnez votre moyen de paiement (500 FCFA) pour débloquer la génération."
-                  : "Sélectionnez un moyen de paiement pour personnaliser votre copie."}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {PAYMENT_METHODS.map((pm) => {
-                  const selected = paymentMethod === pm.value;
-                  return (
-                    <label
-                      key={pm.value}
-                      className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all text-sm ${
-                        selected
-                          ? "border-violet-500 bg-violet-50 ring-1 ring-violet-500 text-violet-700 font-semibold"
-                          : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={pm.value}
-                        checked={selected}
-                        onChange={() => setPaymentMethod(pm.value)}
-                        className="accent-violet-600"
-                      />
-                      {pm.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Paiement — visible uniquement quand les essais gratuits sont épuisés */}
+            {limitReached && (
+              <>
+                <div className="border-t border-gray-100 pt-1" />
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Moyen de paiement <span className="text-violet-600">*</span>
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Sélectionnez votre moyen de paiement (500 FCFA) pour débloquer la génération.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {PAYMENT_METHODS.map((pm) => {
+                      const selected = paymentMethod === pm.value;
+                      return (
+                        <label
+                          key={pm.value}
+                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all text-sm ${
+                            selected
+                              ? "border-violet-500 bg-violet-50 ring-1 ring-violet-500 text-violet-700 font-semibold"
+                              : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value={pm.value}
+                            checked={selected}
+                            onChange={() => setPaymentMethod(pm.value)}
+                            className="accent-violet-600"
+                          />
+                          {pm.label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Error */}
             {error && (
